@@ -1,6 +1,6 @@
 [package]
 name = "gpt5"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 authors = ["Moji <moji.ndr@gmail.com>"]
 description = "A Rust client library for OpenAI's GPT-5 API with support for function calling, reasoning, and streaming"
