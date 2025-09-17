@@ -292,19 +292,4 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## Changelog
 
-### 0.1.1 (Latest)
-- ✅ **All 94 tests passing** (28 unit + 26 integration + 40 doctests)
-- 🔄 **Updated reqwest** dependency from 0.11 to 0.12
-- 🛠️ **Fixed error handling** example with proper error types
-- 📚 **Improved documentation** with realistic JSON examples
-- 🧪 **Added no_run flags** to prevent real API calls in doctests
-- ✨ **Better error messages** and handling patterns
-- 🚀 **All examples compile** and run correctly
-
-### 0.1.0
-- Initial release
-- Full GPT-5 API support
-- Function calling capabilities
-- Type-safe enums for all parameters
-- Comprehensive documentation
-- Complete examples directory with 5 practical examples
+See [CHANGELOG.md](CHANGELOG.md) for detailed release notes and version history.

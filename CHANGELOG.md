@@ -1,0 +1,65 @@
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [0.1.1] - 2024-12-19
+
+### Added
+- Comprehensive test suite with 94 tests (28 unit + 26 integration + 40 doctests)
+- Better error handling patterns in examples
+- Realistic JSON examples in documentation
+
+### Changed
+- Updated reqwest dependency from 0.11 to 0.12
+- Improved documentation with proper JSON structure
+- Enhanced error messages and handling patterns
+
+### Fixed
+- Fixed error handling example with proper error types
+- Added no_run flags to prevent real API calls in doctests
+- Ensured all examples compile and run correctly
+- Fixed all doctest compilation issues
+
+### Technical
+- All 94 tests now pass without failures
+- Improved code coverage and reliability
+- Better developer experience with working examples
+
+## [0.1.0] - 2024-12-19
+
+### Added
+- Initial release of GPT-5 Rust client library
+- Full GPT-5 API support with type-safe enums
+- Function calling capabilities with custom tools
+- Reasoning capabilities with configurable effort levels
+- Verbosity control for response detail levels
+- Multiple model support (GPT-5, GPT-5 Mini, GPT-5 Nano, Custom)
+- Async/await support built on tokio
+- Comprehensive error handling and validation
+- Request builder with fluent API
+- Response parsing for text, function calls, and metadata
+- Complete examples directory with 5 practical examples:
+  - `quick_start.rs` - Minimal 3-line example
+  - `basic_usage.rs` - Different models demo
+  - `simple_chat.rs` - Interactive chat loop
+  - `function_calling.rs` - Advanced function calling
+  - `error_handling.rs` - Production error handling
+- Interactive chat example
+- Function calling demos with calculator and weather tools
+- Error handling patterns for production use
+- Quick start guide for immediate usage
+
+### Features
+- Type-safe API with strongly-typed enums
+- Function calling system with custom tools
+- Reasoning effort levels (Low, Medium, High)
+- Verbosity levels (Low, Medium, High)
+- Multiple GPT-5 models support
+- Async/await for high performance
+- Comprehensive error types and validation
+- Easy response parsing
+- Request builder pattern
+- Built-in validation with helpful warnings
