@@ -7,6 +7,8 @@
 > ⚠️ **IN ACTIVE IMPROVEMENT** ⚠️  
 > This library is actively being improved and may have breaking changes.  
 > Perfect for experimentation, learning, and development projects!
+> 
+> **Latest Release**: v0.1.1 - All tests passing, improved documentation, and better error handling!
 
 A comprehensive Rust client library for OpenAI's GPT-5 API with full support for function calling, reasoning capabilities, and type-safe enums.
 
@@ -49,7 +51,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-gpt5 = "0.1.0"
+gpt5 = "0.1.1"
 tokio = { version = "1.0", features = ["rt-multi-thread", "macros"] }
 serde_json = "1.0"  # For function calling examples
 ```
@@ -290,10 +292,19 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## Changelog
 
+### 0.1.1 (Latest)
+- ✅ **All 94 tests passing** (28 unit + 26 integration + 40 doctests)
+- 🔄 **Updated reqwest** dependency from 0.11 to 0.12
+- 🛠️ **Fixed error handling** example with proper error types
+- 📚 **Improved documentation** with realistic JSON examples
+- 🧪 **Added no_run flags** to prevent real API calls in doctests
+- ✨ **Better error messages** and handling patterns
+- 🚀 **All examples compile** and run correctly
+
 ### 0.1.0
 - Initial release
 - Full GPT-5 API support
 - Function calling capabilities
 - Type-safe enums for all parameters
 - Comprehensive documentation
-- **NEW**: Complete examples directory with 5 practical examples
+- Complete examples directory with 5 practical examples
