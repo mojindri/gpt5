@@ -4,6 +4,10 @@
 [![Documentation](https://docs.rs/gpt5/badge.svg)](https://docs.rs/gpt5)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+> ⚠️ **FRESH LIBRARY WARNING** ⚠️  
+> This is a very fresh library in active development. It is **NOT guaranteed for production use**.  
+> Use at your own risk and expect breaking changes. Perfect for experimentation and learning!
+
 A comprehensive Rust client library for OpenAI's GPT-5 API with full support for function calling, reasoning capabilities, and type-safe enums.
 
 ## Features
@@ -24,7 +28,23 @@ Add this to your `Cargo.toml`:
 [dependencies]
 gpt5 = "0.1.0"
 tokio = { version = "1.0", features = ["rt-multi-thread", "macros"] }
+serde_json = "1.0"  # For function calling examples
 ```
+
+### 🚀 Try the Examples
+
+The fastest way to get started is with our examples:
+
+```bash
+# Clone and run examples
+git clone <repository-url>
+cd gpt5
+cargo run --example quick_start
+cargo run --example basic_usage
+cargo run --example simple_chat
+```
+
+See the [examples/](examples/) directory for more detailed examples including function calling, error handling, and interactive chat.
 
 ### Basic Usage
 
@@ -203,7 +223,45 @@ let request = Gpt5RequestBuilder::new(Gpt5Model::Gpt5Nano)
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
+## Examples
+
+We provide comprehensive examples to help you get started quickly:
+
+| Example | Description | Run Command |
+|---------|-------------|-------------|
+| [`quick_start.rs`](examples/quick_start.rs) | Minimal 3-line example | `cargo run --example quick_start` |
+| [`basic_usage.rs`](examples/basic_usage.rs) | Different models demo | `cargo run --example basic_usage` |
+| [`simple_chat.rs`](examples/simple_chat.rs) | Interactive chat loop | `cargo run --example simple_chat` |
+| [`function_calling.rs`](examples/function_calling.rs) | Advanced function calling | `cargo run --example function_calling` |
+| [`error_handling.rs`](examples/error_handling.rs) | Production error handling | `cargo run --example error_handling` |
+
+### Prerequisites for Examples
+
+Set your OpenAI API key:
+```bash
+export OPENAI_API_KEY="your-api-key-here"
+```
+
 ## Contributing
+
+🚀 **We're actively looking for contributors!** This is a fresh library with lots of room for improvement.
+
+**Areas where we'd love help:**
+- 🐛 Bug fixes and edge case handling
+- 📚 Documentation improvements
+- 🧪 More comprehensive tests
+- ⚡ Performance optimizations
+- 🔧 Additional features and examples
+- 📖 Better error messages and validation
+
+**How to contribute:**
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a Pull Request
+
+**Questions or ideas?** Open an issue and let's discuss! We're very responsive and would love to hear from you.
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
@@ -215,3 +273,4 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 - Function calling capabilities
 - Type-safe enums for all parameters
 - Comprehensive documentation
+- **NEW**: Complete examples directory with 5 practical examples
