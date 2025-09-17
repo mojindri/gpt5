@@ -9,7 +9,7 @@
 //!
 //! ## Quick Start
 //!
-//! ```rust
+//! ```rust,no_run
 //! use gpt5::{Gpt5Client, Gpt5Model, Gpt5RequestBuilder, VerbosityLevel};
 //!
 //! #[tokio::main]
@@ -27,7 +27,7 @@
 //!
 //! ## Advanced Usage with Function Calling
 //!
-//! ```rust
+//! ```rust,no_run
 //! use gpt5::{Gpt5Client, Gpt5Model, Gpt5RequestBuilder, Tool};
 //! use serde_json::json;
 //!

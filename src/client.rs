@@ -14,7 +14,7 @@ use reqwest::Client;
 ///
 /// ## Simple Usage
 ///
-/// ```rust
+/// ```rust,no_run
 /// use gpt5::{Gpt5Client, Gpt5Model};
 ///
 /// #[tokio::main]
@@ -93,7 +93,7 @@ impl Gpt5Client {
     ///
     /// # Examples
     ///
-    /// ```rust
+    /// ```rust,no_run
     /// use gpt5::{Gpt5Client, Gpt5RequestBuilder, Gpt5Model};
     ///
     /// #[tokio::main]
@@ -181,7 +181,7 @@ impl Gpt5Client {
     ///
     /// # Examples
     ///
-    /// ```rust
+    /// ```rust,no_run
     /// use gpt5::{Gpt5Client, Gpt5Model};
     ///
     /// #[tokio::main]

@@ -3,7 +3,7 @@
 //! This example demonstrates proper error handling patterns
 //! Run with: cargo run --example error_handling
 
-use gpt5::{Gpt5Client, Gpt5Error, Gpt5Model};
+use gpt5::{Gpt5Client, Gpt5Model};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -15,8 +15,16 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         Ok(response) => println!("Unexpected success: {}", response),
         Err(e) => {
             println!("❌ Expected error: {}", e);
-            if let Some(gpt5_error) = e.downcast_ref::<Gpt5Error>() {
-                println!("   Error type: {:?}", gpt5_error);
+            // Check error type by string content
+            let error_str = e.to_string();
+            if error_str.contains("401") || error_str.contains("Unauthorized") {
+                println!("   Error type: Authentication error");
+            } else if error_str.contains("timeout") {
+                println!("   Error type: Timeout error");
+            } else if error_str.contains("network") {
+                println!("   Error type: Network error");
+            } else {
+                println!("   Error type: Other error");
             }
         }
     }

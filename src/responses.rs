@@ -14,6 +14,22 @@ use std::collections::HashMap;
 ///
 /// ```rust
 /// use gpt5::Gpt5Response;
+/// use serde_json::json;
+///
+/// // Example response data
+/// let response_data = json!({
+///     "id": "chatcmpl-123",
+///     "object": "chat.completion",
+///     "created": 1677652288,
+///     "model": "gpt-5",
+///     "status": "completed",
+///     "output": [{
+///         "type": "message",
+///         "text": "Hello, world!"
+///     }]
+/// });
+///
+/// let response: Gpt5Response = serde_json::from_value(response_data).unwrap();
 ///
 /// // Check if response is completed
 /// if response.is_completed() {
@@ -165,6 +181,12 @@ impl Gpt5Response {
     ///
     /// ```rust
     /// use gpt5::Gpt5Response;
+    /// use serde_json::json;
+    ///
+    /// let response_data = json!({
+    ///     "output": [{ "type": "message", "text": "Hello, world!" }]
+    /// });
+    /// let response: Gpt5Response = serde_json::from_value(response_data).unwrap();
     ///
     /// if let Some(text) = response.text() {
     ///     println!("Response text: {}", text);
@@ -202,6 +224,15 @@ impl Gpt5Response {
     ///
     /// ```rust
     /// use gpt5::Gpt5Response;
+    /// use serde_json::json;
+    ///
+    /// let response_data = json!({
+    ///     "output": [
+    ///         { "type": "message", "text": "Hello" },
+    ///         { "type": "message", "text": "World" }
+    ///     ]
+    /// });
+    /// let response: Gpt5Response = serde_json::from_value(response_data).unwrap();
     ///
     /// let all_texts = response.all_text();
     /// for text in all_texts {
@@ -240,6 +271,18 @@ impl Gpt5Response {
     ///
     /// ```rust
     /// use gpt5::Gpt5Response;
+    /// use serde_json::json;
+    ///
+    /// let response_data = json!({
+    ///     "output": [{
+    ///         "type": "function_call",
+    ///         "function_call": {
+    ///             "name": "get_weather",
+    ///             "arguments": "{\"city\": \"Boston\"}"
+    ///         }
+    ///     }]
+    /// });
+    /// let response: Gpt5Response = serde_json::from_value(response_data).unwrap();
     ///
     /// let function_calls = response.function_calls();
     /// for call in function_calls {
@@ -269,6 +312,19 @@ impl Gpt5Response {
     ///
     /// ```rust
     /// use gpt5::Gpt5Response;
+    /// use serde_json::json;
+    ///
+    /// let response_data = json!({
+    ///     "usage": {
+    ///         "input_tokens": 10,
+    ///         "output_tokens": 20,
+    ///         "total_tokens": 30,
+    ///         "output_tokens_details": {
+    ///             "reasoning_tokens": 150
+    ///         }
+    ///     }
+    /// });
+    /// let response: Gpt5Response = serde_json::from_value(response_data).unwrap();
     ///
     /// if let Some(reasoning_tokens) = response.reasoning_tokens() {
     ///     println!("Reasoning tokens: {}", reasoning_tokens);
@@ -293,6 +349,16 @@ impl Gpt5Response {
     ///
     /// ```rust
     /// use gpt5::Gpt5Response;
+    /// use serde_json::json;
+    ///
+    /// let response_data = json!({
+    ///     "usage": {
+    ///         "input_tokens": 10,
+    ///         "output_tokens": 20,
+    ///         "total_tokens": 100
+    ///     }
+    /// });
+    /// let response: Gpt5Response = serde_json::from_value(response_data).unwrap();
     ///
     /// println!("Total tokens: {}", response.total_tokens());
     /// ```
@@ -312,6 +378,12 @@ impl Gpt5Response {
     ///
     /// ```rust
     /// use gpt5::Gpt5Response;
+    /// use serde_json::json;
+    ///
+    /// let response_data = json!({
+    ///     "status": "completed"
+    /// });
+    /// let response: Gpt5Response = serde_json::from_value(response_data).unwrap();
     ///
     /// if response.is_completed() {
     ///     println!("Response completed successfully");
@@ -338,6 +410,12 @@ impl Gpt5Response {
     ///
     /// ```rust
     /// use gpt5::Gpt5Response;
+    /// use serde_json::json;
+    ///
+    /// let response_data = json!({
+    ///     "error": { "message": "API key invalid" }
+    /// });
+    /// let response: Gpt5Response = serde_json::from_value(response_data).unwrap();
     ///
     /// if response.has_error() {
     ///     println!("Response contains an error");
