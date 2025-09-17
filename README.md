@@ -4,21 +4,44 @@
 [![Documentation](https://docs.rs/gpt5/badge.svg)](https://docs.rs/gpt5)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-> ⚠️ **FRESH LIBRARY WARNING** ⚠️  
-> This is a very fresh library in active development. It is **NOT guaranteed for production use**.  
-> Use at your own risk and expect breaking changes. Perfect for experimentation and learning!
+> ⚠️ **IN ACTIVE IMPROVEMENT** ⚠️  
+> This library is actively being improved and may have breaking changes.  
+> Perfect for experimentation, learning, and development projects!
 
 A comprehensive Rust client library for OpenAI's GPT-5 API with full support for function calling, reasoning capabilities, and type-safe enums.
 
 ## Features
 
-- 🚀 **Type-safe API** - All parameters use strongly-typed enums
-- 🔧 **Function calling** - Full support for OpenAI's function calling system
-- 🧠 **Reasoning capabilities** - Configurable reasoning effort levels
-- 📝 **Verbosity control** - Fine-tune response detail levels
-- ⚡ **Async/await** - Built on tokio for high performance
-- 🛡️ **Error handling** - Comprehensive error types and validation
-- 📊 **Response parsing** - Easy access to text, function calls, and metadata
+### 🚀 **Core Capabilities**
+- **Type-safe API** - All parameters use strongly-typed enums for compile-time safety
+- **Function calling** - Full support for OpenAI's function calling system with custom tools
+- **Reasoning capabilities** - Configurable reasoning effort levels (Low, Medium, High)
+- **Verbosity control** - Fine-tune response detail levels for different use cases
+- **Multiple models** - Support for GPT-5, GPT-5 Mini, GPT-5 Nano, and custom models
+
+### ⚡ **Performance & Developer Experience**
+- **Async/await** - Built on tokio for high performance and concurrency
+- **Error handling** - Comprehensive error types and validation with helpful messages
+- **Response parsing** - Easy access to text, function calls, and metadata
+- **Request builder** - Fluent API for building complex requests
+- **Validation** - Built-in request validation with helpful warnings
+
+### 📚 **Documentation & Examples**
+- **Comprehensive examples** - 5 practical examples from basic to advanced
+- **Interactive chat** - Ready-to-run chat loop example
+- **Function calling demos** - Calculator and weather tool examples
+- **Error handling patterns** - Production-ready error handling examples
+- **Quick start guide** - Get running in minutes with minimal code
+
+### 🔮 **Coming Soon**
+- **Streaming responses** - Real-time response streaming for better UX
+- **Retry mechanisms** - Automatic retry with exponential backoff
+- **Rate limiting** - Built-in rate limiting and quota management
+- **Response caching** - Optional response caching for cost optimization
+- **WebSocket support** - Real-time bidirectional communication
+- **More examples** - Advanced use cases and integration patterns
+- **CLI tool** - Command-line interface for quick testing
+- **Benchmarks** - Performance benchmarks and optimization guides
 
 ## Quick Start
 
