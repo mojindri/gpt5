@@ -1,13 +1,12 @@
 //! GPT-5 Models and related types
 
-
 /// GPT-5 Models available for the /v1/responses endpoint
-/// 
+///
 /// # Examples
-/// 
+///
 /// ```rust
 /// use gpt5::Gpt5Model;
-/// 
+///
 /// let model = Gpt5Model::Gpt5Nano; // Fastest, most cost-effective
 /// let custom = Gpt5Model::Custom("gpt-5-custom".to_string());
 /// ```
@@ -25,12 +24,12 @@ pub enum Gpt5Model {
 
 impl Gpt5Model {
     /// Returns the string representation of the model for API calls
-    /// 
+    ///
     /// # Examples
-    /// 
+    ///
     /// ```rust
     /// use gpt5::Gpt5Model;
-    /// 
+    ///
     /// assert_eq!(Gpt5Model::Gpt5.as_str(), "gpt-5");
     /// assert_eq!(Gpt5Model::Gpt5Nano.as_str(), "gpt-5-nano");
     /// ```

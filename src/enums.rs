@@ -1,17 +1,16 @@
 //! Type-safe enums for GPT-5 API parameters
 
-
 /// Reasoning effort level for GPT-5 responses
-/// 
+///
 /// Controls how much computational effort GPT-5 puts into reasoning
 /// before generating the final response. Higher effort typically means
 /// better quality but slower responses.
-/// 
+///
 /// # Examples
-/// 
+///
 /// ```rust
 /// use gpt5::ReasoningEffort;
-/// 
+///
 /// let low_effort = ReasoningEffort::Low;    // Fast, basic reasoning
 /// let high_effort = ReasoningEffort::High;  // Slow, thorough reasoning
 /// ```
@@ -57,15 +56,15 @@ impl<'de> serde::Deserialize<'de> for ReasoningEffort {
 }
 
 /// Verbosity level for GPT-5 responses
-/// 
+///
 /// Controls the detail level of responses from GPT-5.
 /// Higher verbosity typically means more detailed explanations.
-/// 
+///
 /// # Examples
-/// 
+///
 /// ```rust
 /// use gpt5::VerbosityLevel;
-/// 
+///
 /// let low = VerbosityLevel::Low;      // Concise responses
 /// let high = VerbosityLevel::High;    // Detailed responses
 /// ```
@@ -111,14 +110,14 @@ impl<'de> serde::Deserialize<'de> for VerbosityLevel {
 }
 
 /// Output type for GPT-5 responses
-/// 
+///
 /// Indicates the type of output content in the response.
-/// 
+///
 /// # Examples
-/// 
+///
 /// ```rust
 /// use gpt5::OutputType;
-/// 
+///
 /// let message = OutputType::Message;        // Text message
 /// let function_call = OutputType::FunctionCall; // Function call
 /// ```
@@ -160,14 +159,14 @@ impl<'de> serde::Deserialize<'de> for OutputType {
 }
 
 /// Content type for output content
-/// 
+///
 /// Specifies the type of content within an output message.
-/// 
+///
 /// # Examples
-/// 
+///
 /// ```rust
 /// use gpt5::ContentType;
-/// 
+///
 /// let text = ContentType::OutputText; // Text content
 /// ```
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -204,14 +203,14 @@ impl<'de> serde::Deserialize<'de> for ContentType {
 }
 
 /// Response status for GPT-5 responses
-/// 
+///
 /// Indicates the current status of a GPT-5 response.
-/// 
+///
 /// # Examples
-/// 
+///
 /// ```rust
 /// use gpt5::Status;
-/// 
+///
 /// let completed = Status::Completed;     // Response is complete
 /// let in_progress = Status::InProgress;  // Response is still being generated
 /// ```
@@ -261,14 +260,14 @@ impl<'de> serde::Deserialize<'de> for Status {
 }
 
 /// Role in the conversation
-/// 
+///
 /// Specifies the role of the message sender in the conversation.
-/// 
+///
 /// # Examples
-/// 
+///
 /// ```rust
 /// use gpt5::Role;
-/// 
+///
 /// let user = Role::User;         // User message
 /// let assistant = Role::Assistant; // Assistant message
 /// ```
@@ -318,14 +317,14 @@ impl<'de> serde::Deserialize<'de> for Role {
 }
 
 /// Format type for text responses
-/// 
+///
 /// Specifies the format of text content in responses.
-/// 
+///
 /// # Examples
-/// 
+///
 /// ```rust
 /// use gpt5::FormatType;
-/// 
+///
 /// let markdown = FormatType::Markdown;     // Markdown format
 /// let plain_text = FormatType::PlainText; // Plain text format
 /// ```

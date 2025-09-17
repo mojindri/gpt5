@@ -1,18 +1,18 @@
 //! Function calling example with GPT-5
-//! 
+//!
 //! This example shows how to use GPT-5 with function calling capabilities
 //! Run with: cargo run --example function_calling
 
-use gpt5::{Gpt5Client, Gpt5Model, Gpt5RequestBuilder, Tool, VerbosityLevel, ReasoningEffort};
+use gpt5::{Gpt5Client, Gpt5Model, Gpt5RequestBuilder, ReasoningEffort, Tool, VerbosityLevel};
 use serde_json::json;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let api_key = std::env::var("OPENAI_API_KEY")
-        .expect("Please set OPENAI_API_KEY environment variable");
-    
+    let api_key =
+        std::env::var("OPENAI_API_KEY").expect("Please set OPENAI_API_KEY environment variable");
+
     let client = Gpt5Client::new(api_key);
-    
+
     // Define a simple calculator tool
     let calculator_tool = Tool {
         tool_type: "function".to_string(),
@@ -29,7 +29,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             "required": ["expression"]
         }),
     };
-    
+
     // Define a weather tool (mock)
     let weather_tool = Tool {
         tool_type: "function".to_string(),
@@ -46,9 +46,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             "required": ["city"]
         }),
     };
-    
+
     println!("🧮 Testing calculator function...");
-    
+
     // Build a request with tools
     let request = Gpt5RequestBuilder::new(Gpt5Model::Gpt5Nano)
         .input("What is 15 * 8 + 42?")
@@ -59,10 +59,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .reasoning_effort(ReasoningEffort::Low)
         .max_output_tokens(200)
         .build();
-    
+
     // Send the request
     let response = client.request(request).await?;
-    
+
     // Check for function calls
     let function_calls = response.function_calls();
     if !function_calls.is_empty() {
@@ -72,14 +72,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             println!("  Arguments: {}", call.arguments.as_deref().unwrap_or("{}"));
         }
     }
-    
+
     // Get text response
     if let Some(text) = response.text() {
         println!("🤖 Response: {}", text);
     }
-    
+
     println!("\n🌤️ Testing weather function...");
-    
+
     // Test weather tool
     let weather_request = Gpt5RequestBuilder::new(Gpt5Model::Gpt5Nano)
         .input("What's the weather like in Tokyo?")
@@ -90,9 +90,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .reasoning_effort(ReasoningEffort::Low)
         .max_output_tokens(150)
         .build();
-    
+
     let weather_response = client.request(weather_request).await?;
-    
+
     let weather_calls = weather_response.function_calls();
     if !weather_calls.is_empty() {
         println!("🔧 Weather function calls made: {}", weather_calls.len());
@@ -101,10 +101,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             println!("  Arguments: {}", call.arguments.as_deref().unwrap_or("{}"));
         }
     }
-    
+
     if let Some(text) = weather_response.text() {
         println!("🤖 Response: {}", text);
     }
-    
+
     Ok(())
 }

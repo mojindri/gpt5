@@ -52,23 +52,23 @@
 //! ```
 
 // Module declarations
-mod models;
+mod client;
 mod enums;
+mod models;
 mod requests;
 mod responses;
-mod client;
 
 // Re-export all public types for easy access
 pub use crate::client::Gpt5Client;
 pub use crate::enums::{
-    ReasoningEffort, VerbosityLevel, OutputType, ContentType, Status, Role, FormatType
+    ContentType, FormatType, OutputType, ReasoningEffort, Role, Status, VerbosityLevel,
 };
 pub use crate::models::Gpt5Model;
-pub use crate::requests::{Gpt5Request, Gpt5RequestBuilder, Tool, RequestReasoning, RequestText};
+pub use crate::requests::{Gpt5Request, Gpt5RequestBuilder, RequestReasoning, RequestText, Tool};
 pub use crate::responses::{
-    Gpt5Response, ResponseOutput, OutputContent, ResponseReasoning, ResponseText,
-    ResponseTextFormat, ResponseUsage, InputTokenDetails, ResponseTokenDetails,
-    OpenAiError, OpenAiErrorDetails
+    Gpt5Response, InputTokenDetails, OpenAiError, OpenAiErrorDetails, OutputContent,
+    ResponseOutput, ResponseReasoning, ResponseText, ResponseTextFormat, ResponseTokenDetails,
+    ResponseUsage,
 };
 
 #[cfg(test)]
@@ -89,7 +89,7 @@ mod tests {
         let low = ReasoningEffort::Low;
         let serialized = serde_json::to_string(&low).unwrap();
         assert_eq!(serialized, "\"low\"");
-        
+
         let deserialized: ReasoningEffort = serde_json::from_str(&serialized).unwrap();
         assert_eq!(deserialized, ReasoningEffort::Low);
     }
@@ -99,7 +99,7 @@ mod tests {
         let high = VerbosityLevel::High;
         let serialized = serde_json::to_string(&high).unwrap();
         assert_eq!(serialized, "\"high\"");
-        
+
         let deserialized: VerbosityLevel = serde_json::from_str(&serialized).unwrap();
         assert_eq!(deserialized, VerbosityLevel::High);
     }
@@ -109,7 +109,7 @@ mod tests {
         let message = OutputType::Message;
         let serialized = serde_json::to_string(&message).unwrap();
         assert_eq!(serialized, "\"message\"");
-        
+
         let deserialized: OutputType = serde_json::from_str(&serialized).unwrap();
         assert_eq!(deserialized, OutputType::Message);
     }
@@ -119,7 +119,7 @@ mod tests {
         let output_text = ContentType::OutputText;
         let serialized = serde_json::to_string(&output_text).unwrap();
         assert_eq!(serialized, "\"output_text\"");
-        
+
         let deserialized: ContentType = serde_json::from_str(&serialized).unwrap();
         assert_eq!(deserialized, ContentType::OutputText);
     }
@@ -129,7 +129,7 @@ mod tests {
         let completed = Status::Completed;
         let serialized = serde_json::to_string(&completed).unwrap();
         assert_eq!(serialized, "\"completed\"");
-        
+
         let deserialized: Status = serde_json::from_str(&serialized).unwrap();
         assert_eq!(deserialized, Status::Completed);
     }
@@ -139,7 +139,7 @@ mod tests {
         let user = Role::User;
         let serialized = serde_json::to_string(&user).unwrap();
         assert_eq!(serialized, "\"user\"");
-        
+
         let deserialized: Role = serde_json::from_str(&serialized).unwrap();
         assert_eq!(deserialized, Role::User);
     }
@@ -149,7 +149,7 @@ mod tests {
         let markdown = FormatType::Markdown;
         let serialized = serde_json::to_string(&markdown).unwrap();
         assert_eq!(serialized, "\"markdown\"");
-        
+
         let deserialized: FormatType = serde_json::from_str(&serialized).unwrap();
         assert_eq!(deserialized, FormatType::Markdown);
     }
@@ -165,7 +165,7 @@ mod tests {
     fn test_gpt5_client_with_base_url() {
         let client = Gpt5Client::new("test-api-key".to_string())
             .with_base_url("https://custom-api.example.com".to_string());
-        
+
         // The base_url should be updated
         assert_eq!(client.base_url, "https://custom-api.example.com");
     }
@@ -175,7 +175,7 @@ mod tests {
         let request = Gpt5RequestBuilder::new(Gpt5Model::Gpt5Nano)
             .input("Hello, world!")
             .build();
-        
+
         assert_eq!(request.model, "gpt-5-nano");
         assert_eq!(request.input, "Hello, world!");
         assert!(request.reasoning.is_none());
@@ -200,7 +200,7 @@ mod tests {
                 }
             }),
         };
-        
+
         let request = Gpt5RequestBuilder::new(Gpt5Model::Gpt5)
             .input("What's the weather?")
             .instructions("Use the weather tool")
@@ -211,10 +211,13 @@ mod tests {
             .max_output_tokens(1000)
             .top_p(0.9)
             .build();
-        
+
         assert_eq!(request.model, "gpt-5");
         assert_eq!(request.input, "What's the weather?");
-        assert_eq!(request.instructions, Some("Use the weather tool".to_string()));
+        assert_eq!(
+            request.instructions,
+            Some("Use the weather tool".to_string())
+        );
         assert!(request.reasoning.is_some());
         assert!(request.tools.is_some());
         assert_eq!(request.tool_choice, Some("auto".to_string()));
@@ -229,10 +232,10 @@ mod tests {
             .input("Test input")
             .max_output_tokens(100)
             .build();
-        
+
         let serialized = serde_json::to_string(&request).unwrap();
         let deserialized: Gpt5Request = serde_json::from_str(&serialized).unwrap();
-        
+
         assert_eq!(deserialized.model, request.model);
         assert_eq!(deserialized.input, request.input);
         assert_eq!(deserialized.max_output_tokens, request.max_output_tokens);
@@ -264,9 +267,9 @@ mod tests {
                 "total_tokens": 15
             }
         });
-        
+
         let response: Gpt5Response = serde_json::from_value(sample_response).unwrap();
-        
+
         assert_eq!(response.id, Some("resp_123".to_string()));
         assert_eq!(response.object, Some("response".to_string()));
         assert_eq!(response.status, Some(Status::Completed));
@@ -290,10 +293,10 @@ mod tests {
                 }
             ]
         });
-        
+
         let response: Gpt5Response = serde_json::from_value(sample_response).unwrap();
         let text = response.text();
-        
+
         assert_eq!(text, Some("Hello, world!".to_string()));
     }
 
@@ -317,13 +320,16 @@ mod tests {
                 }
             ]
         });
-        
+
         let response: Gpt5Response = serde_json::from_value(sample_response).unwrap();
         let function_calls = response.function_calls();
-        
+
         assert_eq!(function_calls.len(), 1);
         assert_eq!(function_calls[0].name, Some("get_weather".to_string()));
-        assert_eq!(function_calls[0].arguments, Some("{\"location\": \"Boston\"}".to_string()));
+        assert_eq!(
+            function_calls[0].arguments,
+            Some("{\"location\": \"Boston\"}".to_string())
+        );
     }
 
     #[test]
@@ -331,14 +337,14 @@ mod tests {
         let completed_response = json!({
             "status": "completed"
         });
-        
+
         let response: Gpt5Response = serde_json::from_value(completed_response).unwrap();
         assert!(response.is_completed());
-        
+
         let incomplete_response = json!({
             "status": "incomplete"
         });
-        
+
         let response: Gpt5Response = serde_json::from_value(incomplete_response).unwrap();
         assert!(!response.is_completed());
     }
@@ -355,9 +361,9 @@ mod tests {
                 }
             }
         });
-        
+
         let response: Gpt5Response = serde_json::from_value(sample_response).unwrap();
-        
+
         assert_eq!(response.total_tokens(), 15);
         assert_eq!(response.reasoning_tokens(), Some(3));
     }
@@ -372,9 +378,9 @@ mod tests {
                 "code": "invalid_api_key"
             }
         });
-        
+
         let error: OpenAiError = serde_json::from_value(error_response).unwrap();
-        
+
         assert_eq!(error.error.message, "Invalid API key");
         assert_eq!(error.error.error_type, "invalid_request_error");
         assert_eq!(error.error.param, Some("api_key".to_string()));
@@ -392,7 +398,7 @@ mod tests {
             .top_p(0.8)
             .param("custom_param", "custom_value")
             .build();
-        
+
         assert_eq!(request.input, "Test");
         assert_eq!(request.instructions, Some("Be helpful".to_string()));
         assert!(request.reasoning.is_some());
@@ -406,10 +412,10 @@ mod tests {
     fn test_enum_equality() {
         assert_eq!(ReasoningEffort::Low, ReasoningEffort::Low);
         assert_ne!(ReasoningEffort::Low, ReasoningEffort::High);
-        
+
         assert_eq!(VerbosityLevel::Medium, VerbosityLevel::Medium);
         assert_ne!(VerbosityLevel::Low, VerbosityLevel::High);
-        
+
         assert_eq!(Status::Completed, Status::Completed);
         assert_ne!(Status::Completed, Status::InProgress);
     }
@@ -419,9 +425,12 @@ mod tests {
         let unknown_reasoning = ReasoningEffort::Unknown("custom_effort".to_string());
         let serialized = serde_json::to_string(&unknown_reasoning).unwrap();
         assert_eq!(serialized, "\"custom_effort\"");
-        
+
         let deserialized: ReasoningEffort = serde_json::from_str("\"custom_effort\"").unwrap();
-        assert_eq!(deserialized, ReasoningEffort::Unknown("custom_effort".to_string()));
+        assert_eq!(
+            deserialized,
+            ReasoningEffort::Unknown("custom_effort".to_string())
+        );
     }
 
     #[test]
@@ -437,7 +446,7 @@ mod tests {
                 }
             }),
         };
-        
+
         assert_eq!(tool.tool_type, "function");
         assert_eq!(tool.name, "test_function");
         assert_eq!(tool.description, "A test function");
@@ -451,20 +460,20 @@ mod tests {
             description: "First tool".to_string(),
             parameters: json!({}),
         };
-        
+
         let tool2 = Tool {
             tool_type: "function".to_string(),
             name: "tool2".to_string(),
             description: "Second tool".to_string(),
             parameters: json!({}),
         };
-        
+
         let request = Gpt5RequestBuilder::new(Gpt5Model::Gpt5)
             .input("Use both tools")
             .tools(vec![tool1, tool2])
             .tool_choice("auto")
             .build();
-        
+
         assert!(request.tools.is_some());
         assert_eq!(request.tools.unwrap().len(), 2);
         assert_eq!(request.tool_choice, Some("auto".to_string()));
@@ -494,10 +503,10 @@ mod tests {
                 }
             ]
         });
-        
+
         let response: Gpt5Response = serde_json::from_value(sample_response).unwrap();
         let all_texts = response.all_text();
-        
+
         assert_eq!(all_texts.len(), 2);
         assert_eq!(all_texts[0], "First message");
         assert_eq!(all_texts[1], "Second message");
@@ -508,14 +517,14 @@ mod tests {
         let error_response = json!({
             "error": {"message": "Test error"}
         });
-        
+
         let response: Gpt5Response = serde_json::from_value(error_response).unwrap();
         assert!(response.has_error());
-        
+
         let success_response = json!({
             "status": "completed"
         });
-        
+
         let response: Gpt5Response = serde_json::from_value(success_response).unwrap();
         assert!(!response.has_error());
     }
@@ -525,7 +534,7 @@ mod tests {
         let request = Gpt5RequestBuilder::new(Gpt5Model::Gpt5Nano)
             .user_text("Hello from user_text method")
             .build();
-        
+
         assert_eq!(request.input, "Hello from user_text method");
     }
 
@@ -536,7 +545,7 @@ mod tests {
             .input("")
             .max_output_tokens(5) // Very low token count
             .build();
-        
+
         assert_eq!(request.input, "");
         assert_eq!(request.max_output_tokens, Some(5));
     }
