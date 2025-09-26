@@ -20,6 +20,7 @@ A comprehensive Rust client library for OpenAI's GPT-5 API with full support for
 - **Reasoning capabilities** - Configurable reasoning effort levels (Low, Medium, High)
 - **Verbosity control** - Fine-tune response detail levels for different use cases
 - **Multiple models** - Support for GPT-5, GPT-5 Mini, GPT-5 Nano, and custom models
+- **Built-in web search** - Enable OpenAI's web search assistance with custom queries and result limits
 
 ### ⚡ **Performance & Developer Experience**
 - **Async/await** - Built on tokio for high performance and concurrency
@@ -29,7 +30,7 @@ A comprehensive Rust client library for OpenAI's GPT-5 API with full support for
 - **Validation** - Built-in request validation with helpful warnings
 
 ### 📚 **Documentation & Examples**
-- **Comprehensive examples** - 5 practical examples from basic to advanced
+- **Comprehensive examples** - 6 practical examples from basic to advanced
 - **Interactive chat** - Ready-to-run chat loop example
 - **Function calling demos** - Calculator and weather tool examples
 - **Error handling patterns** - Production-ready error handling examples
@@ -67,6 +68,7 @@ cd gpt5
 cargo run --example quick_start
 cargo run --example basic_usage
 cargo run --example simple_chat
+cargo run --example web_search
 ```
 
 See the [examples/](examples/) directory for more detailed examples including function calling, error handling, and interactive chat.
@@ -153,6 +155,31 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 ```
 
+### Enable Web Search Assistance
+
+```rust
+use gpt5::{Gpt5Client, Gpt5Model, Gpt5RequestBuilder};
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let client = Gpt5Client::new("your-api-key".to_string());
+
+    let request = Gpt5RequestBuilder::new(Gpt5Model::Gpt5)
+        .input("What were the latest announcements from the Rust team?")
+        .web_search_enabled(true)
+        .web_search_query("Rust language roadmap 2025")
+        .web_search_max_results(5)
+        .build();
+
+    let response = client.request(request).await?;
+    if let Some(text) = response.text() {
+        println!("{}", text);
+    }
+
+    Ok(())
+}
+```
+
 ## API Reference
 
 ### Models
@@ -233,6 +260,10 @@ match client.simple(Gpt5Model::Gpt5Nano, "Hello").await {
 }
 ```
 
+The client now detects HTTP status failures from the OpenAI API and surfaces detailed error messages, making it easier to debug
+authentication or quota issues. If you need full control over networking (custom proxies, retry middleware, etc.), pass your own
+configured `reqwest::Client` via `with_http_client` and keep using the same high-level interface.
+
 ## Validation
 
 The library includes built-in validation for requests:
@@ -259,6 +290,7 @@ We provide comprehensive examples to help you get started quickly:
 | [`simple_chat.rs`](examples/simple_chat.rs) | Interactive chat loop | `cargo run --example simple_chat` |
 | [`function_calling.rs`](examples/function_calling.rs) | Advanced function calling | `cargo run --example function_calling` |
 | [`error_handling.rs`](examples/error_handling.rs) | Production error handling | `cargo run --example error_handling` |
+| [`web_search.rs`](examples/web_search.rs) | Enable web search assistance with custom queries | `cargo run --example web_search` |
 
 ### Prerequisites for Examples
 

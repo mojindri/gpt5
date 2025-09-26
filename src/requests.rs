@@ -10,6 +10,10 @@ use std::collections::HashMap;
 /// This struct contains all the parameters needed to make a request to GPT-5.
 /// Use `Gpt5RequestBuilder` to construct requests in a type-safe manner.
 ///
+/// It includes first-class support for enabling OpenAI's web search assistance via
+/// the [`web_search`](#structfield.web_search) field, allowing callers to toggle the
+/// capability or override query behaviour when needed.
+///
 /// # Examples
 ///
 /// ```rust
@@ -41,6 +45,8 @@ pub struct Gpt5Request {
     pub text: Option<RequestText>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub instructions: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub web_search: Option<WebSearchConfig>,
     #[serde(flatten)]
     pub parameters: HashMap<String, Value>,
 }
@@ -56,6 +62,19 @@ pub struct RequestReasoning {
 pub struct RequestText {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub verbosity: Option<VerbosityLevel>,
+}
+
+/// Configuration for enabling web search assistance.
+///
+/// When enabled the GPT-5 API may consult live web data. The configuration allows
+/// overriding the search query and limiting how many results are considered.
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct WebSearchConfig {
+    pub enabled: bool,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub query: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub max_results: Option<u8>,
 }
 
 /// Tool definition for function calling
@@ -116,6 +135,7 @@ pub struct Gpt5RequestBuilder {
     top_p: Option<f64>,
     text: Option<RequestText>,
     instructions: Option<String>,
+    web_search: Option<WebSearchConfig>,
     parameters: HashMap<String, Value>,
 }
 
@@ -144,6 +164,7 @@ impl Gpt5RequestBuilder {
             top_p: None,
             text: None,
             instructions: None,
+            web_search: None,
             parameters: HashMap::new(),
         }
     }
@@ -165,6 +186,42 @@ impl Gpt5RequestBuilder {
     /// ```
     pub fn input(mut self, text: &str) -> Self {
         self.input = text.to_string();
+        self
+    }
+
+    /// Enable or disable OpenAI's web search assistance.
+    pub fn web_search_enabled(mut self, enabled: bool) -> Self {
+        let mut config = self.web_search.unwrap_or_default();
+        config.enabled = enabled;
+        self.web_search = Some(config);
+        self
+    }
+
+    /// Override the search query used for web search assistance.
+    pub fn web_search_query(mut self, query: &str) -> Self {
+        let mut config = self.web_search.unwrap_or_else(|| WebSearchConfig {
+            enabled: true,
+            ..Default::default()
+        });
+        config.query = Some(query.to_string());
+        if !config.enabled {
+            config.enabled = true;
+        }
+        self.web_search = Some(config);
+        self
+    }
+
+    /// Limit the maximum number of search results that the model can inspect.
+    pub fn web_search_max_results(mut self, max_results: u8) -> Self {
+        let mut config = self.web_search.unwrap_or_else(|| WebSearchConfig {
+            enabled: true,
+            ..Default::default()
+        });
+        config.max_results = Some(max_results);
+        if !config.enabled {
+            config.enabled = true;
+        }
+        self.web_search = Some(config);
         self
     }
 
@@ -386,6 +443,13 @@ impl Gpt5RequestBuilder {
             top_p: self.top_p,
             text: self.text,
             instructions: self.instructions,
+            web_search: self.web_search.and_then(|config| {
+                if config.enabled || config.query.is_some() || config.max_results.is_some() {
+                    Some(config)
+                } else {
+                    None
+                }
+            }),
             parameters: self.parameters,
         }
     }
@@ -429,6 +493,23 @@ impl Gpt5RequestBuilder {
                         }
                         _ => {} // Good combinations
                     }
+                }
+            }
+        }
+
+        if let Some(ref web_search) = self.web_search {
+            if !web_search.enabled && web_search.query.is_none() && web_search.max_results.is_none()
+            {
+                tracing::warn!(
+                    "Gpt5RequestBuilder: web search configuration is disabled and empty"
+                );
+            }
+
+            if let Some(max_results) = web_search.max_results {
+                if max_results == 0 {
+                    tracing::warn!(
+                        "Gpt5RequestBuilder: web_search_max_results is zero; search results will be ignored"
+                    );
                 }
             }
         }

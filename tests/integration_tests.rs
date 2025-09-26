@@ -7,6 +7,7 @@ use gpt5::{
     ContentType, FormatType, Gpt5Client, Gpt5Model, Gpt5RequestBuilder, OutputType,
     ReasoningEffort, Role, Status, Tool, VerbosityLevel,
 };
+use reqwest::Client as HttpClient;
 use serde_json::json;
 
 /// Test Gpt5Model enum functionality
@@ -132,6 +133,15 @@ fn test_gpt5_client_with_base_url() {
     assert_eq!(client.base_url, "https://custom-api.example.com");
 }
 
+/// Test replacing the underlying HTTP client
+#[test]
+fn test_gpt5_client_with_custom_http_client() {
+    let http_client = HttpClient::builder().build().expect("client builds");
+    let client = Gpt5Client::new("test-api-key".to_string()).with_http_client(http_client);
+
+    assert_eq!(client.api_key, "test-api-key");
+}
+
 /// Test Gpt5RequestBuilder basic functionality
 #[test]
 fn test_gpt5_request_builder_basic() {
@@ -148,6 +158,33 @@ fn test_gpt5_request_builder_basic() {
     assert!(request.top_p.is_none());
     assert!(request.text.is_none());
     assert!(request.instructions.is_none());
+}
+
+/// Test configuring web search assistance
+#[test]
+fn test_gpt5_request_builder_web_search() {
+    let request = Gpt5RequestBuilder::new(Gpt5Model::Gpt5)
+        .input("Find the latest updates")
+        .web_search_enabled(true)
+        .web_search_query("open source rust news")
+        .web_search_max_results(3)
+        .build();
+
+    let web_search = request.web_search.expect("web search config should exist");
+    assert!(web_search.enabled);
+    assert_eq!(web_search.query.as_deref(), Some("open source rust news"));
+    assert_eq!(web_search.max_results, Some(3));
+}
+
+/// Test that disabled and empty web search configuration is omitted
+#[test]
+fn test_gpt5_request_builder_web_search_disabled() {
+    let request = Gpt5RequestBuilder::new(Gpt5Model::Gpt5Nano)
+        .input("No search required")
+        .web_search_enabled(false)
+        .build();
+
+    assert!(request.web_search.is_none());
 }
 
 /// Test Gpt5RequestBuilder with all parameters

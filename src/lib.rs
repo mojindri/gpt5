@@ -64,7 +64,9 @@ pub use crate::enums::{
     ContentType, FormatType, OutputType, ReasoningEffort, Role, Status, VerbosityLevel,
 };
 pub use crate::models::Gpt5Model;
-pub use crate::requests::{Gpt5Request, Gpt5RequestBuilder, RequestReasoning, RequestText, Tool};
+pub use crate::requests::{
+    Gpt5Request, Gpt5RequestBuilder, RequestReasoning, RequestText, Tool, WebSearchConfig,
+};
 pub use crate::responses::{
     Gpt5Response, InputTokenDetails, OpenAiError, OpenAiErrorDetails, OutputContent,
     ResponseOutput, ResponseReasoning, ResponseText, ResponseTextFormat, ResponseTokenDetails,
@@ -548,5 +550,40 @@ mod tests {
 
         assert_eq!(request.input, "");
         assert_eq!(request.max_output_tokens, Some(5));
+    }
+
+    #[test]
+    fn test_web_search_configuration() {
+        let request = Gpt5RequestBuilder::new(Gpt5Model::Gpt5Nano)
+            .input("Search something")
+            .web_search_enabled(true)
+            .web_search_query("latest rust news")
+            .web_search_max_results(5)
+            .build();
+
+        let web_search = request.web_search.expect("web_search should be present");
+        assert!(web_search.enabled);
+        assert_eq!(web_search.query.as_deref(), Some("latest rust news"));
+        assert_eq!(web_search.max_results, Some(5));
+    }
+
+    #[test]
+    fn test_web_search_disabled_is_omitted() {
+        let request = Gpt5RequestBuilder::new(Gpt5Model::Gpt5Nano)
+            .input("No search")
+            .web_search_enabled(false)
+            .build();
+
+        assert!(request.web_search.is_none());
+    }
+
+    #[test]
+    fn test_client_with_custom_http_client() {
+        let custom_client = reqwest::Client::builder()
+            .build()
+            .expect("should build client");
+        let client = Gpt5Client::new("test-key".to_string()).with_http_client(custom_client);
+
+        assert_eq!(client.api_key, "test-key");
     }
 }

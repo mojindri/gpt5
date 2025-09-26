@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- Optional web search assistance controls in `Gpt5RequestBuilder` including query overrides and result limits
+- `Gpt5Client::with_http_client` for supplying a preconfigured `reqwest::Client`
+- `web_search` example demonstrating live search configuration and custom HTTP clients
+
+### Changed
+- Hardened API calls with explicit HTTP status checks and richer error messages
+- Default HTTP client now includes a 60s timeout with graceful fallback if the builder fails
+
 ## [0.1.1] - 2024-12-19
 
 ### Added

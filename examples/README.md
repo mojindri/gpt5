@@ -61,6 +61,17 @@ Shows proper error handling patterns:
 cargo run --example error_handling
 ```
 
+### 5. Web Search Assistance (`web_search.rs`)
+Learn how to:
+- Enable OpenAI's web search assistance
+- Override the search query for better relevance
+- Limit the maximum number of search results inspected
+- Combine instructions and inputs for richer answers
+
+```bash
+cargo run --example web_search
+```
+
 ## Running Examples
 
 All examples can be run with:
