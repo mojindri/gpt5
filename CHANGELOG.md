@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Nothing yet.
 
+## [0.2.1] - 2025-09-26
+
+### Changed
+- Disabled `reqwest` default features to guarantee `rustls` TLS support and shrink the default dependency surface
+- Refreshed dependency lockfile to pull in the latest compatible patch releases
+
+### Documentation
+- Updated README with the 0.2.1 installation instructions and latest release details
+
 ## [0.2.0] - 2025-09-26
 
 ### Added
