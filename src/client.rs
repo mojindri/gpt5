@@ -4,6 +4,7 @@ use crate::models::Gpt5Model;
 use crate::requests::{Gpt5Request, Gpt5RequestBuilder};
 use crate::responses::{Gpt5Response, OpenAiError};
 use reqwest::Client;
+use std::time::Duration;
 
 /// Main client for interacting with the GPT-5 API
 ///
@@ -55,11 +56,33 @@ impl Gpt5Client {
     /// let client = Gpt5Client::new("sk-...".to_string());
     /// ```
     pub fn new(api_key: String) -> Self {
+        let client = Client::builder()
+            .timeout(Duration::from_secs(60))
+            .build()
+            .map_err(|error| {
+                tracing::warn!(
+                    "Failed to build reqwest client with timeout, falling back to default: {}",
+                    error
+                );
+                error
+            })
+            .unwrap_or_else(|_| Client::new());
+
         Self {
-            client: Client::new(),
+            client,
             api_key,
             base_url: "https://api.openai.com".to_string(),
         }
+    }
+
+    /// Replace the underlying HTTP client.
+    ///
+    /// This allows callers to configure advanced settings like proxies,
+    /// retries, or custom TLS behaviour while still using the high level
+    /// `Gpt5Client` interface.
+    pub fn with_http_client(mut self, client: Client) -> Self {
+        self.client = client;
+        self
     }
 
     /// Set a custom base URL for the API
@@ -128,44 +151,48 @@ impl Gpt5Client {
             .send()
             .await?;
 
+        let status = response.status();
         let response_text = response.text().await?;
 
         // Log the raw response for debugging
         tracing::info!("GPT-5 raw response: {}", response_text);
 
-        // Try to parse as a generic JSON first to see the structure
-        match serde_json::from_str::<serde_json::Value>(&response_text) {
-            Ok(json_value) => {
-                tracing::info!("GPT-5 response JSON structure: {:#}", json_value);
-
-                // First check if this is an error response
-                if let Ok(error_response) = serde_json::from_str::<OpenAiError>(&response_text) {
-                    tracing::error!("OpenAI API error: {}", error_response.error.message);
-                    return Err(anyhow::anyhow!(
-                        "OpenAI API error: {}",
-                        error_response.error.message
-                    ));
-                }
-
-                // Try to parse as our expected success structure
-                match serde_json::from_str::<Gpt5Response>(&response_text) {
-                    Ok(gpt_response) => Ok(gpt_response),
-                    Err(parse_error) => {
-                        tracing::error!("Failed to parse GPT-5 response: {}", parse_error);
-                        tracing::error!("Raw response: {}", response_text);
-                        Err(anyhow::anyhow!(
-                            "Failed to parse GPT-5 response: {}",
-                            parse_error
-                        ))
-                    }
-                }
-            }
-            Err(json_error) => {
+        let json_value =
+            serde_json::from_str::<serde_json::Value>(&response_text).map_err(|json_error| {
                 tracing::error!("Invalid JSON response from GPT-5: {}", json_error);
                 tracing::error!("Raw response: {}", response_text);
-                Err(anyhow::anyhow!("Invalid JSON response: {}", json_error))
+                anyhow::anyhow!("Invalid JSON response: {}", json_error)
+            })?;
+
+        tracing::info!("GPT-5 response JSON structure: {:#}", json_value);
+
+        if !status.is_success() {
+            if let Ok(error_response) = serde_json::from_value::<OpenAiError>(json_value.clone()) {
+                tracing::error!(
+                    "OpenAI API error (status {}): {}",
+                    status,
+                    error_response.error.message
+                );
+                return Err(anyhow::anyhow!(
+                    "OpenAI API error (status {}): {}",
+                    status,
+                    error_response.error.message
+                ));
             }
+
+            tracing::error!("OpenAI API request failed with status {}", status);
+            return Err(anyhow::anyhow!(
+                "OpenAI API request failed with status {}: {}",
+                status,
+                response_text
+            ));
         }
+
+        serde_json::from_value::<Gpt5Response>(json_value).map_err(|parse_error| {
+            tracing::error!("Failed to parse GPT-5 response: {}", parse_error);
+            tracing::error!("Raw response: {}", response_text);
+            anyhow::anyhow!("Failed to parse GPT-5 response: {}", parse_error)
+        })
     }
 
     /// Send a simple request and get text response
