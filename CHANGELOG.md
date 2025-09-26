@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+Nothing yet.
+
+## [0.2.0] - 2025-09-26
+
 ### Added
 - Optional web search assistance controls in `Gpt5RequestBuilder` including query overrides and result limits
 - `Gpt5Client::with_http_client` for supplying a preconfigured `reqwest::Client`
