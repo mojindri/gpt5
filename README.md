@@ -8,7 +8,7 @@
 > This library is actively being improved and may have breaking changes.  
 > Perfect for experimentation, learning, and development projects!
 > 
-> **Latest Release**: v0.1.1 - All tests passing, improved documentation, and better error handling!
+> **Latest Release**: v0.2.1 - Leaner networking stack with rustls-only TLS and refreshed deps!
 
 A comprehensive Rust client library for OpenAI's GPT-5 API with full support for function calling, reasoning capabilities, and type-safe enums.
 
@@ -52,7 +52,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-gpt5 = "0.1.1"
+gpt5 = "0.2.1"
 tokio = { version = "1.0", features = ["rt-multi-thread", "macros"] }
 serde_json = "1.0"  # For function calling examples
 ```
