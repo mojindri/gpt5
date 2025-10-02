@@ -8,7 +8,7 @@
 > This library is actively being improved and may have breaking changes.  
 > Perfect for experimentation, learning, and development projects!
 > 
-> **Latest Release**: v0.2.1 - Leaner networking stack with rustls-only TLS and refreshed deps!
+> **Latest Release**: v0.2.2 - Web search compatibility fixes and streamlined examples!
 
 A comprehensive Rust client library for OpenAI's GPT-5 API with full support for function calling, reasoning capabilities, and type-safe enums.
 
@@ -20,7 +20,7 @@ A comprehensive Rust client library for OpenAI's GPT-5 API with full support for
 - **Reasoning capabilities** - Configurable reasoning effort levels (Low, Medium, High)
 - **Verbosity control** - Fine-tune response detail levels for different use cases
 - **Multiple models** - Support for GPT-5, GPT-5 Mini, GPT-5 Nano, and custom models
-- **Built-in web search** - Enable OpenAI's web search assistance with custom queries and result limits
+- **Built-in web search** - Enable OpenAI's web search tool with suggested queries and result limits
 
 ### ⚡ **Performance & Developer Experience**
 - **Async/await** - Built on tokio for high performance and concurrency
@@ -52,7 +52,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-gpt5 = "0.2.1"
+gpt5 = "0.2.2"
 tokio = { version = "1.0", features = ["rt-multi-thread", "macros"] }
 serde_json = "1.0"  # For function calling examples
 ```
@@ -104,9 +104,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Define a weather tool
     let weather_tool = Tool {
         tool_type: "function".to_string(),
-        name: "get_current_weather".to_string(),
-        description: "Get the current weather in a given location".to_string(),
-        parameters: json!({
+        name: Some("get_current_weather".to_string()),
+        description: Some("Get the current weather in a given location".to_string()),
+        parameters: Some(json!({
             "type": "object",
             "properties": {
                 "location": {
@@ -119,7 +119,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 }
             },
             "required": ["location", "unit"]
-        }),
+        })),
     };
     
     // Build a request with tools
@@ -158,22 +158,41 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 ### Enable Web Search Assistance
 
 ```rust
-use gpt5::{Gpt5Client, Gpt5Model, Gpt5RequestBuilder};
+use gpt5::{Gpt5Client, Gpt5Model, Gpt5RequestBuilder, Status};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let client = Gpt5Client::new("your-api-key".to_string());
 
     let request = Gpt5RequestBuilder::new(Gpt5Model::Gpt5)
-        .input("What were the latest announcements from the Rust team?")
+        .input("Summarise the newest Rust release notes")
         .web_search_enabled(true)
-        .web_search_query("Rust language roadmap 2025")
-        .web_search_max_results(5)
+        .web_search_query("latest Rust release notes")
+        .web_search_max_results(3)
         .build();
 
+    let search_config = request.web_search_config.clone();
     let response = client.request(request).await?;
-    if let Some(text) = response.text() {
-        println!("{}", text);
+
+    match response.status {
+        Some(Status::RequiresAction) => {
+            if let Some(config) = search_config {
+                println!(
+                    "Suggested query: {} (max results: {:?})",
+                    config.query.unwrap_or_default(),
+                    config.max_results
+                );
+            }
+            println!(
+                "Model requested the web_search tool. Run the search and send tool_outputs with responses.create."
+            );
+        }
+        Some(Status::Completed) => {
+            if let Some(text) = response.text() {
+                println!("{}", text);
+            }
+        }
+        _ => println!("Status: {:?}", response.status),
     }
 
     Ok(())
@@ -290,7 +309,7 @@ We provide comprehensive examples to help you get started quickly:
 | [`simple_chat.rs`](examples/simple_chat.rs) | Interactive chat loop | `cargo run --example simple_chat` |
 | [`function_calling.rs`](examples/function_calling.rs) | Advanced function calling | `cargo run --example function_calling` |
 | [`error_handling.rs`](examples/error_handling.rs) | Production error handling | `cargo run --example error_handling` |
-| [`web_search.rs`](examples/web_search.rs) | Enable web search assistance with custom queries | `cargo run --example web_search` |
+| [`web_search.rs`](examples/web_search.rs) | Enable web search assistance with suggested queries | `cargo run --example web_search` |
 
 ### Prerequisites for Examples
 

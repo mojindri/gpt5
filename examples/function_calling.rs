@@ -16,9 +16,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Define a simple calculator tool
     let calculator_tool = Tool {
         tool_type: "function".to_string(),
-        name: "calculate".to_string(),
-        description: "Perform basic arithmetic calculations".to_string(),
-        parameters: json!({
+        name: Some("calculate".to_string()),
+        description: Some("Perform basic arithmetic calculations".to_string()),
+        parameters: Some(json!({
             "type": "object",
             "properties": {
                 "expression": {
@@ -27,15 +27,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 }
             },
             "required": ["expression"]
-        }),
+        })),
     };
 
     // Define a weather tool (mock)
     let weather_tool = Tool {
         tool_type: "function".to_string(),
-        name: "get_weather".to_string(),
-        description: "Get current weather information for a city".to_string(),
-        parameters: json!({
+        name: Some("get_weather".to_string()),
+        description: Some("Get current weather information for a city".to_string()),
+        parameters: Some(json!({
             "type": "object",
             "properties": {
                 "city": {
@@ -44,7 +44,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 }
             },
             "required": ["city"]
-        }),
+        })),
     };
 
     println!("🧮 Testing calculator function...");

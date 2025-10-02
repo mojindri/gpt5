@@ -7,7 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-Nothing yet.
+- Nothing yet.
+
+## [0.2.2] - 2025-10-02
+
+### Changed
+- Align `Gpt5RequestBuilder` web search support with the Responses API by emitting a bare `web_search` tool while retaining configuration metadata for host applications
+- Simplified the web search example and documentation to use a lightweight release-notes query and a longer default HTTP timeout
+
+### Fixed
+- Prevent `400 Bad Request` errors caused by unsupported `tools[].name` and `tools[].description` parameters in web search requests
 
 ## [0.2.1] - 2025-09-26
 

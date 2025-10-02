@@ -10,9 +10,8 @@ use std::collections::HashMap;
 /// This struct contains all the parameters needed to make a request to GPT-5.
 /// Use `Gpt5RequestBuilder` to construct requests in a type-safe manner.
 ///
-/// It includes first-class support for enabling OpenAI's web search assistance via
-/// the [`web_search`](#structfield.web_search) field, allowing callers to toggle the
-/// capability or override query behaviour when needed.
+/// It includes first-class support for enabling OpenAI's web search assistance by
+/// automatically attaching a `web_search` tool entry when requested through the builder.
 ///
 /// # Examples
 ///
@@ -45,8 +44,9 @@ pub struct Gpt5Request {
     pub text: Option<RequestText>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub instructions: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub web_search: Option<WebSearchConfig>,
+    #[serde(skip_serializing)]
+    #[serde(skip_deserializing)]
+    pub web_search_config: Option<WebSearchConfig>,
     #[serde(flatten)]
     pub parameters: HashMap<String, Value>,
 }
@@ -66,14 +66,15 @@ pub struct RequestText {
 
 /// Configuration for enabling web search assistance.
 ///
-/// When enabled the GPT-5 API may consult live web data. The configuration allows
-/// overriding the search query and limiting how many results are considered.
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+/// When enabled the GPT-5 API may request the `web_search` tool. This configuration
+/// stores metadata (like a suggested query or result cap) so your application can
+/// honour those preferences when fulfilling tool calls.
+#[derive(Debug, Clone, Default)]
 pub struct WebSearchConfig {
     pub enabled: bool,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    pub name: Option<String>,
+    pub description: Option<String>,
     pub query: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub max_results: Option<u8>,
 }
 
@@ -89,23 +90,26 @@ pub struct WebSearchConfig {
 ///
 /// let weather_tool = Tool {
 ///     tool_type: "function".to_string(),
-///     name: "get_weather".to_string(),
-///     description: "Get current weather".to_string(),
-///     parameters: json!({
+///     name: Some("get_weather".to_string()),
+///     description: Some("Get current weather".to_string()),
+///     parameters: Some(json!({
 ///         "type": "object",
 ///         "properties": {
 ///             "location": {"type": "string"}
 ///         }
-///     }),
+///     })),
 /// };
 /// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Tool {
     #[serde(rename = "type")]
     pub tool_type: String,
-    pub name: String,
-    pub description: String,
-    pub parameters: Value,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub name: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub description: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub parameters: Option<Value>,
 }
 
 /// Builder for GPT-5 requests using /v1/responses
@@ -197,7 +201,7 @@ impl Gpt5RequestBuilder {
         self
     }
 
-    /// Override the search query used for web search assistance.
+    /// Provide a suggested query for the web search tool description.
     pub fn web_search_query(mut self, query: &str) -> Self {
         let mut config = self.web_search.unwrap_or_else(|| WebSearchConfig {
             enabled: true,
@@ -211,7 +215,7 @@ impl Gpt5RequestBuilder {
         self
     }
 
-    /// Limit the maximum number of search results that the model can inspect.
+    /// Suggest how many search results should be returned when fulfilling the tool call.
     pub fn web_search_max_results(mut self, max_results: u8) -> Self {
         let mut config = self.web_search.unwrap_or_else(|| WebSearchConfig {
             enabled: true,
@@ -279,9 +283,9 @@ impl Gpt5RequestBuilder {
     ///
     /// let weather_tool = Tool {
     ///     tool_type: "function".to_string(),
-    ///     name: "get_weather".to_string(),
-    ///     description: "Get weather".to_string(),
-    ///     parameters: json!({}),
+    ///     name: Some("get_weather".to_string()),
+    ///     description: Some("Get weather".to_string()),
+    ///     parameters: Some(json!({})),
     /// };
     ///
     /// let request = Gpt5RequestBuilder::new(Gpt5Model::Gpt5)
@@ -433,24 +437,49 @@ impl Gpt5RequestBuilder {
         // Pre-check validation
         self.validate();
 
-        Gpt5Request {
-            model: self.model.as_str().to_string(),
-            input: self.input,
-            reasoning: self.reasoning,
-            tools: self.tools,
-            tool_choice: self.tool_choice,
-            max_output_tokens: self.max_output_tokens,
-            top_p: self.top_p,
-            text: self.text,
-            instructions: self.instructions,
-            web_search: self.web_search.and_then(|config| {
-                if config.enabled || config.query.is_some() || config.max_results.is_some() {
-                    Some(config)
-                } else {
-                    None
+        let Gpt5RequestBuilder {
+            model,
+            input,
+            reasoning,
+            tools,
+            tool_choice,
+            max_output_tokens,
+            top_p,
+            text,
+            instructions,
+            web_search,
+            parameters,
+        } = self;
+
+        let mut tools = tools.unwrap_or_default();
+        let mut web_search_config = None;
+
+        if let Some(config) = web_search {
+            if config.enabled {
+                let already_configured = tools.iter().any(|tool| tool.tool_type == "web_search");
+
+                if !already_configured {
+                    tools.push(config.to_tool());
                 }
-            }),
-            parameters: self.parameters,
+
+                web_search_config = Some(config);
+            }
+        }
+
+        let tools = if tools.is_empty() { None } else { Some(tools) };
+
+        Gpt5Request {
+            model: model.as_str().to_string(),
+            input,
+            reasoning,
+            tools,
+            tool_choice,
+            max_output_tokens,
+            top_p,
+            text,
+            instructions,
+            web_search_config,
+            parameters,
         }
     }
 
@@ -498,13 +527,6 @@ impl Gpt5RequestBuilder {
         }
 
         if let Some(ref web_search) = self.web_search {
-            if !web_search.enabled && web_search.query.is_none() && web_search.max_results.is_none()
-            {
-                tracing::warn!(
-                    "Gpt5RequestBuilder: web search configuration is disabled and empty"
-                );
-            }
-
             if let Some(max_results) = web_search.max_results {
                 if max_results == 0 {
                     tracing::warn!(
@@ -522,5 +544,16 @@ impl Gpt5RequestBuilder {
         }
 
         tracing::info!("Gpt5RequestBuilder: Request validation completed");
+    }
+}
+
+impl WebSearchConfig {
+    fn to_tool(&self) -> Tool {
+        Tool {
+            tool_type: "web_search".to_string(),
+            name: None,
+            description: None,
+            parameters: None,
+        }
     }
 }
