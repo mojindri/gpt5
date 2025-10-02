@@ -40,27 +40,49 @@ use std::collections::HashMap;
 /// ```
 #[derive(Debug, Clone, Deserialize)]
 pub struct Gpt5Response {
+    /// Unique identifier assigned by OpenAI for this response instance
     pub id: Option<String>,
+    /// Type of object returned (typically "response")
     pub object: Option<String>,
+    /// Unix timestamp (seconds) when the response was created
     pub created_at: Option<u64>,
+    /// Current status of the response lifecycle
     pub status: Option<Status>,
+    /// Raw error payload when the request fails
     pub error: Option<Value>,
+    /// Additional details explaining why a response may be incomplete
     pub incomplete_details: Option<Value>,
+    /// System instructions that were used to generate this output
     pub instructions: Option<String>,
+    /// Maximum tokens that were allowed for output generation
     pub max_output_tokens: Option<u32>,
+    /// Model identifier that produced the response
     pub model: Option<String>,
+    /// Collection of outputs such as messages and tool invocations
     pub output: Option<Vec<ResponseOutput>>,
+    /// Indicates whether the model may issue multiple tool calls in parallel
     pub parallel_tool_calls: Option<bool>,
+    /// Identifier referencing a prior response in a conversation chain
     pub previous_response_id: Option<String>,
+    /// Metadata describing the model's reasoning effort and summary
     pub reasoning: Option<ResponseReasoning>,
+    /// Whether OpenAI stored this response server-side
     pub store: Option<bool>,
+    /// Aggregated text block supplied alongside the structured output array
     pub text: Option<ResponseText>,
+    /// Tool selection strategy that was applied to this response
     pub tool_choice: Option<String>,
+    /// Raw tool descriptors returned alongside the response
     pub tools: Option<Vec<Value>>,
+    /// Top-p sampling value that was used for the request
     pub top_p: Option<f64>,
+    /// Reason the response may have been truncated early, if any
     pub truncation: Option<String>,
+    /// Token usage and cost accounting details
     pub usage: Option<ResponseUsage>,
+    /// Identifier supplied by the caller in the original request
     pub user: Option<String>,
+    /// Arbitrary key/value metadata returned by the API
     pub metadata: Option<HashMap<String, Value>>,
 }
 
@@ -70,14 +92,22 @@ pub struct Gpt5Response {
 /// which can be messages or function calls.
 #[derive(Debug, Clone, Deserialize)]
 pub struct ResponseOutput {
+    /// Discriminator indicating whether this output is a message or tool call
     #[serde(rename = "type")]
     pub output_type: OutputType,
+    /// Unique identifier for the output element
     pub id: Option<String>,
+    /// Identifier linking tool call outputs to follow-up responses
     pub call_id: Option<String>,
+    /// Function or tool name associated with this output
     pub name: Option<String>,
+    /// JSON-encoded arguments supplied to a function call
     pub arguments: Option<String>,
+    /// Execution status reported by the API for this output item
     pub status: Option<Status>,
+    /// Message role (`user`, `assistant`, `tool`, etc.) when applicable
     pub role: Option<Role>,
+    /// Rich content segments that make up the response message
     pub content: Option<Vec<OutputContent>>,
 }
 
@@ -87,9 +117,12 @@ pub struct ResponseOutput {
 /// typically containing text or other media.
 #[derive(Debug, Clone, Deserialize)]
 pub struct OutputContent {
+    /// Type of content (for example, `output_text`)
     #[serde(rename = "type")]
     pub content_type: ContentType,
+    /// Textual data provided for text outputs
     pub text: Option<String>,
+    /// Optional inline annotations such as citations or tool metadata
     pub annotations: Option<Vec<Value>>,
 }
 
@@ -99,7 +132,9 @@ pub struct OutputContent {
 /// to generate the response.
 #[derive(Debug, Clone, Deserialize)]
 pub struct ResponseReasoning {
+    /// Reported level of reasoning effort spent on the request
     pub effort: Option<ReasoningEffort>,
+    /// Natural language summary of the model's reasoning process
     pub summary: Option<String>,
 }
 
@@ -108,6 +143,7 @@ pub struct ResponseReasoning {
 /// Specifies how the text content should be formatted.
 #[derive(Debug, Clone, Deserialize)]
 pub struct ResponseText {
+    /// Formatting metadata describing how the client should render text output
     pub format: Option<ResponseTextFormat>,
 }
 
@@ -116,6 +152,7 @@ pub struct ResponseText {
 /// Defines the specific format type for text content.
 #[derive(Debug, Clone, Deserialize)]
 pub struct ResponseTextFormat {
+    /// Concrete text format such as Markdown or plain text
     #[serde(rename = "type")]
     pub format_type: FormatType,
 }
@@ -125,10 +162,15 @@ pub struct ResponseTextFormat {
 /// Contains information about token usage for the request and response.
 #[derive(Debug, Clone, Deserialize)]
 pub struct ResponseUsage {
+    /// Count of tokens consumed by input content
     pub input_tokens: u32,
+    /// Detailed breakdown of input token consumption
     pub input_tokens_details: Option<InputTokenDetails>,
+    /// Count of tokens generated in the output
     pub output_tokens: u32,
+    /// Detailed breakdown of output token consumption
     pub output_tokens_details: Option<ResponseTokenDetails>,
+    /// Total tokens billed for the interaction
     pub total_tokens: u32,
 }
 
@@ -137,6 +179,7 @@ pub struct ResponseUsage {
 /// Additional information about input token usage.
 #[derive(Debug, Clone, Deserialize)]
 pub struct InputTokenDetails {
+    /// Number of tokens served from cache rather than newly processed
     pub cached_tokens: Option<u32>,
 }
 
@@ -145,6 +188,7 @@ pub struct InputTokenDetails {
 /// Additional information about output token usage.
 #[derive(Debug, Clone, Deserialize)]
 pub struct ResponseTokenDetails {
+    /// Tokens allocated specifically to reasoning traces
     pub reasoning_tokens: Option<u32>,
 }
 
@@ -153,6 +197,7 @@ pub struct ResponseTokenDetails {
 /// Represents error responses from the OpenAI API.
 #[derive(Debug, Clone, Deserialize)]
 pub struct OpenAiError {
+    /// Structured error payload returned by the API
     pub error: OpenAiErrorDetails,
 }
 
@@ -161,10 +206,14 @@ pub struct OpenAiError {
 /// Contains specific information about an API error.
 #[derive(Debug, Clone, Deserialize)]
 pub struct OpenAiErrorDetails {
+    /// Human-readable explanation of the failure
     pub message: String,
+    /// Error category identifier provided by the API
     #[serde(rename = "type")]
     pub error_type: String,
+    /// Parameter that triggered the error, if known
     pub param: Option<String>,
+    /// Additional error code that can aid debugging
     pub code: Option<String>,
 }
 

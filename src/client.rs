@@ -36,8 +36,11 @@ use std::time::Duration;
 ///     .with_base_url("https://custom-api.example.com".to_string());
 /// ```
 pub struct Gpt5Client {
+    /// Configured HTTP client used to send requests to the OpenAI API
     pub client: Client,
+    /// Secret token used to authenticate each request with OpenAI
     pub api_key: String,
+    /// Base URL pointing at the OpenAI API (override for proxies/self-hosted gateways)
     pub base_url: String,
 }
 

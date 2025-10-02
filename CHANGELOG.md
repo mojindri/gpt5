@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Nothing yet.
 
+## [0.2.3] - 2025-10-03
+
+### Documentation
+- Added field-level documentation for `Gpt5Client`, request payload structs, and response models to improve generated crate docs and contextual guidance
+
 ## [0.2.2] - 2025-10-02
 
 ### Changed

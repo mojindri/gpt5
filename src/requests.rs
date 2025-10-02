@@ -28,25 +28,36 @@ use std::collections::HashMap;
 /// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Gpt5Request {
+    /// Identifier for the GPT-5 model that should process the request
     pub model: String,
+    /// Primary user input supplied to the model
     pub input: String,
+    /// Optional reasoning configuration controlling effort spent on the task
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reasoning: Option<RequestReasoning>,
+    /// Optional collection of callable tools the model may invoke
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tools: Option<Vec<Tool>>,
+    /// Strategy directing the model to auto-select or force a specific tool
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tool_choice: Option<String>,
+    /// Maximum number of tokens the model is allowed to emit
     #[serde(skip_serializing_if = "Option::is_none")]
     pub max_output_tokens: Option<u32>,
+    /// Top-p nucleus sampling value that steers randomness
     #[serde(skip_serializing_if = "Option::is_none")]
     pub top_p: Option<f64>,
+    /// Optional response text configuration (verbosity, formatting, etc.)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub text: Option<RequestText>,
+    /// System-level instructions that frame how the model should respond
     #[serde(skip_serializing_if = "Option::is_none")]
     pub instructions: Option<String>,
+    /// Derived configuration describing desired web search behaviour for tool calls
     #[serde(skip_serializing)]
     #[serde(skip_deserializing)]
     pub web_search_config: Option<WebSearchConfig>,
+    /// Additional arbitrary parameters forwarded to the API
     #[serde(flatten)]
     pub parameters: HashMap<String, Value>,
 }
@@ -54,12 +65,14 @@ pub struct Gpt5Request {
 /// Reasoning configuration for requests
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RequestReasoning {
+    /// Effort level hint that balances speed, cost, and reasoning depth
     pub effort: ReasoningEffort,
 }
 
 /// Text configuration for requests
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RequestText {
+    /// Requested verbosity for natural language output
     #[serde(skip_serializing_if = "Option::is_none")]
     pub verbosity: Option<VerbosityLevel>,
 }
@@ -71,10 +84,15 @@ pub struct RequestText {
 /// honour those preferences when fulfilling tool calls.
 #[derive(Debug, Clone, Default)]
 pub struct WebSearchConfig {
+    /// Indicates whether the generated request should expose the `web_search` tool
     pub enabled: bool,
+    /// Human-readable name to surface when presenting the tool to end-users
     pub name: Option<String>,
+    /// Summary explaining what the search helper does
     pub description: Option<String>,
+    /// Suggested search query to run if the tool is invoked
     pub query: Option<String>,
+    /// Preferred maximum number of results the search integration should return
     pub max_results: Option<u8>,
 }
 
@@ -102,12 +120,16 @@ pub struct WebSearchConfig {
 /// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Tool {
+    /// Kind of tool being offered (OpenAI expects "function" or "web_search")
     #[serde(rename = "type")]
     pub tool_type: String,
+    /// Public identifier for the tool, primarily used for function calling routing
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
+    /// Optional explanation that helps the model select when to call the tool
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
+    /// JSON Schema describing the arguments the tool expects
     #[serde(skip_serializing_if = "Option::is_none")]
     pub parameters: Option<Value>,
 }
