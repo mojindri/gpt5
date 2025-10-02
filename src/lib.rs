@@ -33,15 +33,15 @@
 //!
 //! let weather_tool = Tool {
 //!     tool_type: "function".to_string(),
-//!     name: "get_weather".to_string(),
-//!     description: "Get current weather".to_string(),
-//!     parameters: json!({
+//!     name: Some("get_weather".to_string()),
+//!     description: Some("Get current weather".to_string()),
+//!     parameters: Some(json!({
 //!         "type": "object",
 //!         "properties": {
 //!             "location": {"type": "string", "description": "City name"}
 //!         },
 //!         "required": ["location"]
-//!     }),
+//!     })),
 //! };
 //!
 //! let req = Gpt5RequestBuilder::new(Gpt5Model::Gpt5)
@@ -193,14 +193,14 @@ mod tests {
     fn test_gpt5_request_builder_complete() {
         let weather_tool = Tool {
             tool_type: "function".to_string(),
-            name: "get_weather".to_string(),
-            description: "Get current weather".to_string(),
-            parameters: json!({
+            name: Some("get_weather".to_string()),
+            description: Some("Get current weather".to_string()),
+            parameters: Some(json!({
                 "type": "object",
                 "properties": {
                     "location": {"type": "string"}
                 }
-            }),
+            })),
         };
 
         let request = Gpt5RequestBuilder::new(Gpt5Model::Gpt5)
@@ -439,35 +439,35 @@ mod tests {
     fn test_tool_creation() {
         let tool = Tool {
             tool_type: "function".to_string(),
-            name: "test_function".to_string(),
-            description: "A test function".to_string(),
-            parameters: json!({
+            name: Some("test_function".to_string()),
+            description: Some("A test function".to_string()),
+            parameters: Some(json!({
                 "type": "object",
                 "properties": {
                     "param1": {"type": "string"}
                 }
-            }),
+            })),
         };
 
         assert_eq!(tool.tool_type, "function");
-        assert_eq!(tool.name, "test_function");
-        assert_eq!(tool.description, "A test function");
+        assert_eq!(tool.name.as_deref(), Some("test_function"));
+        assert_eq!(tool.description.as_deref(), Some("A test function"));
     }
 
     #[test]
     fn test_multiple_tools() {
         let tool1 = Tool {
             tool_type: "function".to_string(),
-            name: "tool1".to_string(),
-            description: "First tool".to_string(),
-            parameters: json!({}),
+            name: Some("tool1".to_string()),
+            description: Some("First tool".to_string()),
+            parameters: Some(json!({})),
         };
 
         let tool2 = Tool {
             tool_type: "function".to_string(),
-            name: "tool2".to_string(),
-            description: "Second tool".to_string(),
-            parameters: json!({}),
+            name: Some("tool2".to_string()),
+            description: Some("Second tool".to_string()),
+            parameters: Some(json!({})),
         };
 
         let request = Gpt5RequestBuilder::new(Gpt5Model::Gpt5)
@@ -561,10 +561,20 @@ mod tests {
             .web_search_max_results(5)
             .build();
 
-        let web_search = request.web_search.expect("web_search should be present");
-        assert!(web_search.enabled);
-        assert_eq!(web_search.query.as_deref(), Some("latest rust news"));
-        assert_eq!(web_search.max_results, Some(5));
+        let tools = request.tools.expect("web_search tool should be present");
+        let search_tool = tools
+            .into_iter()
+            .find(|tool| tool.tool_type == "web_search")
+            .expect("expected a web_search tool");
+
+        assert!(search_tool.name.is_none());
+        assert!(search_tool.description.is_none());
+
+        let config = request
+            .web_search_config
+            .expect("web_search metadata should be stored");
+        assert_eq!(config.query.as_deref(), Some("latest rust news"));
+        assert_eq!(config.max_results, Some(5));
     }
 
     #[test]
@@ -574,7 +584,8 @@ mod tests {
             .web_search_enabled(false)
             .build();
 
-        assert!(request.web_search.is_none());
+        assert!(request.tools.is_none());
+        assert!(request.web_search_config.is_none());
     }
 
     #[test]

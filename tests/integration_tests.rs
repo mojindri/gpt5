@@ -170,10 +170,20 @@ fn test_gpt5_request_builder_web_search() {
         .web_search_max_results(3)
         .build();
 
-    let web_search = request.web_search.expect("web search config should exist");
-    assert!(web_search.enabled);
-    assert_eq!(web_search.query.as_deref(), Some("open source rust news"));
-    assert_eq!(web_search.max_results, Some(3));
+    let tools = request.tools.expect("web search tool should be present");
+    let tool = tools
+        .into_iter()
+        .find(|tool| tool.tool_type == "web_search")
+        .expect("expected a web_search tool");
+
+    assert!(tool.name.is_none());
+    assert!(tool.description.is_none());
+
+    let config = request
+        .web_search_config
+        .expect("metadata should be stored for web search");
+    assert_eq!(config.query.as_deref(), Some("open source rust news"));
+    assert_eq!(config.max_results, Some(3));
 }
 
 /// Test that disabled and empty web search configuration is omitted
@@ -184,7 +194,11 @@ fn test_gpt5_request_builder_web_search_disabled() {
         .web_search_enabled(false)
         .build();
 
-    assert!(request.web_search.is_none());
+    assert!(request
+        .tools
+        .map(|tools| tools.into_iter().all(|tool| tool.tool_type != "web_search"))
+        .unwrap_or(true));
+    assert!(request.web_search_config.is_none());
 }
 
 /// Test Gpt5RequestBuilder with all parameters
@@ -192,14 +206,14 @@ fn test_gpt5_request_builder_web_search_disabled() {
 fn test_gpt5_request_builder_complete() {
     let weather_tool = Tool {
         tool_type: "function".to_string(),
-        name: "get_weather".to_string(),
-        description: "Get current weather".to_string(),
-        parameters: json!({
+        name: Some("get_weather".to_string()),
+        description: Some("Get current weather".to_string()),
+        parameters: Some(json!({
             "type": "object",
             "properties": {
                 "location": {"type": "string"}
             }
-        }),
+        })),
     };
 
     let request = Gpt5RequestBuilder::new(Gpt5Model::Gpt5)
@@ -245,19 +259,19 @@ fn test_gpt5_request_builder_validation() {
 fn test_tool_creation() {
     let tool = Tool {
         tool_type: "function".to_string(),
-        name: "test_function".to_string(),
-        description: "A test function".to_string(),
-        parameters: json!({
+        name: Some("test_function".to_string()),
+        description: Some("A test function".to_string()),
+        parameters: Some(json!({
             "type": "object",
             "properties": {
                 "param1": {"type": "string"}
             }
-        }),
+        })),
     };
 
     assert_eq!(tool.tool_type, "function");
-    assert_eq!(tool.name, "test_function");
-    assert_eq!(tool.description, "A test function");
+    assert_eq!(tool.name.as_deref(), Some("test_function"));
+    assert_eq!(tool.description.as_deref(), Some("A test function"));
 }
 
 /// Test Gpt5Request serialization
@@ -482,9 +496,9 @@ fn test_unknown_enum_values() {
 fn test_complex_tool_definition() {
     let complex_tool = Tool {
         tool_type: "function".to_string(),
-        name: "analyze_data".to_string(),
-        description: "Analyze complex data with multiple parameters".to_string(),
-        parameters: json!({
+        name: Some("analyze_data".to_string()),
+        description: Some("Analyze complex data with multiple parameters".to_string()),
+        parameters: Some(json!({
             "type": "object",
             "properties": {
                 "data": {
@@ -506,11 +520,15 @@ fn test_complex_tool_definition() {
                 }
             },
             "required": ["data", "method"]
-        }),
+        })),
     };
 
-    assert_eq!(complex_tool.name, "analyze_data");
-    assert!(complex_tool.parameters.is_object());
+    assert_eq!(complex_tool.name.as_deref(), Some("analyze_data"));
+    assert!(complex_tool
+        .parameters
+        .as_ref()
+        .expect("parameters missing")
+        .is_object());
 }
 
 /// Test request with multiple tools
@@ -518,16 +536,16 @@ fn test_complex_tool_definition() {
 fn test_multiple_tools() {
     let tool1 = Tool {
         tool_type: "function".to_string(),
-        name: "tool1".to_string(),
-        description: "First tool".to_string(),
-        parameters: json!({}),
+        name: Some("tool1".to_string()),
+        description: Some("First tool".to_string()),
+        parameters: Some(json!({})),
     };
 
     let tool2 = Tool {
         tool_type: "function".to_string(),
-        name: "tool2".to_string(),
-        description: "Second tool".to_string(),
-        parameters: json!({}),
+        name: Some("tool2".to_string()),
+        description: Some("Second tool".to_string()),
+        parameters: Some(json!({})),
     };
 
     let request = Gpt5RequestBuilder::new(Gpt5Model::Gpt5)

@@ -63,9 +63,9 @@ cargo run --example error_handling
 
 ### 5. Web Search Assistance (`web_search.rs`)
 Learn how to:
-- Enable OpenAI's web search assistance
-- Override the search query for better relevance
-- Limit the maximum number of search results inspected
+- Enable OpenAI's web search assistance tool entry
+- Provide a suggested query to steer the model's search focus
+- Communicate soft limits on the number of search results to return
 - Combine instructions and inputs for richer answers
 
 ```bash
