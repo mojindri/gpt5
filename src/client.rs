@@ -239,25 +239,9 @@ impl Gpt5Client {
     ///
     /// * `Result<String, anyhow::Error>` - The extracted text or an error
     fn extract_text(&self, response: &Gpt5Response) -> anyhow::Result<String> {
-        // Look for text content in the output array
-        if let Some(outputs) = &response.output {
-            for output in outputs {
-                if output.output_type == crate::enums::OutputType::Message {
-                    if let Some(content_array) = &output.content {
-                        for content in content_array {
-                            if content.content_type == crate::enums::ContentType::OutputText {
-                                if let Some(text) = &content.text {
-                                    return Ok(text.clone());
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        // If no text output found, return error
-        Err(anyhow::anyhow!("No text content in response output"))
+        response
+            .text()
+            .ok_or_else(|| anyhow::anyhow!("No text content in response output"))
     }
 
     /// Validate if a model is a GPT-5 model

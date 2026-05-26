@@ -127,6 +127,8 @@ pub enum OutputType {
     Message,
     /// Function call output - tool/function invocation
     FunctionCall,
+    FunctionCallOutput,
+    Reasoning,
     /// Unknown output type (for future compatibility)
     Unknown(String),
 }
@@ -139,6 +141,8 @@ impl serde::Serialize for OutputType {
         match self {
             OutputType::Message => serializer.serialize_str("message"),
             OutputType::FunctionCall => serializer.serialize_str("function_call"),
+            OutputType::FunctionCallOutput => serializer.serialize_str("function_call_output"),
+            OutputType::Reasoning => serializer.serialize_str("reasoning"),
             OutputType::Unknown(s) => serializer.serialize_str(s),
         }
     }
@@ -153,6 +157,8 @@ impl<'de> serde::Deserialize<'de> for OutputType {
         Ok(match s.as_str() {
             "message" => OutputType::Message,
             "function_call" => OutputType::FunctionCall,
+            "function_call_output" => OutputType::FunctionCallOutput,
+            "reasoning" => OutputType::Reasoning,
             _ => OutputType::Unknown(s),
         })
     }

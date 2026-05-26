@@ -1,9 +1,49 @@
 //! Request structures and builders for GPT-5 API
 
-use crate::enums::{ReasoningEffort, VerbosityLevel};
+use crate::enums::{ReasoningEffort, Role, VerbosityLevel};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::collections::HashMap;
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum Gpt5Input {
+    Text(String),
+    Items(Vec<Gpt5InputItem>),
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct InputMessage {
+    pub role: Role,
+    pub content: Value,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct FunctionCallOutput {
+    #[serde(rename = "type")]
+    pub item_type: String,
+    pub call_id: String,
+    pub output: Value,
+}
+
+impl FunctionCallOutput {
+    pub fn new<T: Into<String>, V: Into<Value>>(call_id: T, output: V) -> Self {
+        Self {
+            item_type: "function_call_output".to_string(),
+            call_id: call_id.into(),
+            output: output.into(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum Gpt5InputItem {
+    Message(InputMessage),
+    Output(crate::responses::ResponseOutput),
+    FunctionCallOutput(FunctionCallOutput),
+    Raw(Value),
+}
 
 /// Request structure for the GPT-5 /v1/responses endpoint
 ///
@@ -31,7 +71,7 @@ pub struct Gpt5Request {
     /// Identifier for the GPT-5 model that should process the request
     pub model: String,
     /// Primary user input supplied to the model
-    pub input: String,
+    pub input: Gpt5Input,
     /// Optional reasoning configuration controlling effort spent on the task
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reasoning: Option<RequestReasoning>,
@@ -132,6 +172,8 @@ pub struct Tool {
     /// JSON Schema describing the arguments the tool expects
     #[serde(skip_serializing_if = "Option::is_none")]
     pub parameters: Option<Value>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub strict: Option<bool>,
 }
 
 /// Builder for GPT-5 requests using /v1/responses
@@ -154,6 +196,7 @@ pub struct Tool {
 pub struct Gpt5RequestBuilder {
     model: crate::models::Gpt5Model,
     input: String,
+    input_items: Option<Vec<Gpt5InputItem>>,
     reasoning: Option<RequestReasoning>,
     tools: Option<Vec<Tool>>,
     tool_choice: Option<String>,
@@ -183,6 +226,7 @@ impl Gpt5RequestBuilder {
         Self {
             model,
             input: String::new(),
+            input_items: None,
             reasoning: None,
             tools: None,
             tool_choice: None,
@@ -212,6 +256,13 @@ impl Gpt5RequestBuilder {
     /// ```
     pub fn input(mut self, text: &str) -> Self {
         self.input = text.to_string();
+        self.input_items = None;
+        self
+    }
+
+    pub fn input_items(mut self, items: Vec<Gpt5InputItem>) -> Self {
+        self.input_items = Some(items);
+        self.input = String::new();
         self
     }
 
@@ -462,6 +513,7 @@ impl Gpt5RequestBuilder {
         let Gpt5RequestBuilder {
             model,
             input,
+            input_items,
             reasoning,
             tools,
             tool_choice,
@@ -472,6 +524,15 @@ impl Gpt5RequestBuilder {
             web_search,
             parameters,
         } = self;
+
+        let input = if let Some(items) = input_items {
+            Gpt5Input::Items(items)
+        } else {
+            Gpt5Input::Items(vec![Gpt5InputItem::Message(InputMessage {
+                role: Role::User,
+                content: Value::String(input),
+            })])
+        };
 
         let mut tools = tools.unwrap_or_default();
         let mut web_search_config = None;
@@ -508,7 +569,7 @@ impl Gpt5RequestBuilder {
     /// Validate the request parameters
     fn validate(&self) {
         // Validate input is not empty
-        if self.input.trim().is_empty() {
+        if self.input_items.is_none() && self.input.trim().is_empty() {
             tracing::warn!("Gpt5RequestBuilder: Input is empty, this may result in no response");
         }
 
@@ -576,6 +637,7 @@ impl WebSearchConfig {
             name: None,
             description: None,
             parameters: None,
+            strict: None,
         }
     }
 }
