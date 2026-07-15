@@ -80,10 +80,22 @@ mod tests {
 
     #[test]
     fn test_gpt5_model_as_str() {
+        assert_eq!(Gpt5Model::Gpt56.as_str(), "gpt-5.6");
+        assert_eq!(Gpt5Model::Gpt56Sol.as_str(), "gpt-5.6-sol");
+        assert_eq!(Gpt5Model::Gpt56Terra.as_str(), "gpt-5.6-terra");
+        assert_eq!(Gpt5Model::Gpt56Luna.as_str(), "gpt-5.6-luna");
+        assert_eq!(Gpt5Model::Gpt55.as_str(), "gpt-5.5");
+        assert_eq!(Gpt5Model::Gpt55Pro.as_str(), "gpt-5.5-pro");
         assert_eq!(Gpt5Model::Gpt54.as_str(), "gpt-5.4");
+        assert_eq!(Gpt5Model::Gpt54Pro.as_str(), "gpt-5.4-pro");
         assert_eq!(Gpt5Model::Gpt54Mini.as_str(), "gpt-5.4-mini");
         assert_eq!(Gpt5Model::Gpt54Nano.as_str(), "gpt-5.4-nano");
+        assert_eq!(Gpt5Model::Gpt53Codex.as_str(), "gpt-5.3-codex");
+        assert_eq!(Gpt5Model::Gpt52.as_str(), "gpt-5.2");
+        assert_eq!(Gpt5Model::Gpt52Pro.as_str(), "gpt-5.2-pro");
+        assert_eq!(Gpt5Model::Gpt51.as_str(), "gpt-5.1");
         assert_eq!(Gpt5Model::Gpt5.as_str(), "gpt-5");
+        assert_eq!(Gpt5Model::Gpt5Pro.as_str(), "gpt-5-pro");
         assert_eq!(Gpt5Model::Gpt5Mini.as_str(), "gpt-5-mini");
         assert_eq!(Gpt5Model::Gpt5Nano.as_str(), "gpt-5-nano");
         assert_eq!(Gpt5Model::Custom("custom".to_string()).as_str(), "custom");
