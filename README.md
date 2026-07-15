@@ -17,9 +17,9 @@ A comprehensive Rust client library for OpenAI's GPT-5 API with full support for
 ### 🚀 **Core Capabilities**
 - **Type-safe API** - All parameters use strongly-typed enums for compile-time safety
 - **Function calling** - Full support for OpenAI's function calling system with custom tools
-- **Reasoning capabilities** - Configurable reasoning effort levels (Low, Medium, High)
+- **Reasoning capabilities** - Configurable reasoning effort levels (None, Minimal, Low, Medium, High, XHigh, Max)
 - **Verbosity control** - Fine-tune response detail levels for different use cases
-- **Multiple models** - Support for GPT-5, GPT-5 Mini, GPT-5 Nano, and custom models
+- **Multiple models** - Support for current GPT-5.6, GPT-5.5, GPT-5.4, legacy GPT-5 variants, and custom model IDs
 - **Built-in web search** - Enable OpenAI's web search tool with suggested queries and result limits
 
 ### ⚡ **Performance & Developer Experience**
@@ -209,10 +209,16 @@ The library supports all GPT-5 models:
 ```rust
 use gpt5::Gpt5Model;
 
-let model = Gpt5Model::Gpt5;        // Main model - most capable
-let mini = Gpt5Model::Gpt5Mini;     // Balanced performance and cost
-let nano = Gpt5Model::Gpt5Nano;     // Fastest and most cost-effective
-let custom = Gpt5Model::Custom("gpt-5-custom".to_string());
+let flagship = Gpt5Model::Gpt56;     // GPT-5.6 alias for the flagship Sol model
+let sol = Gpt5Model::Gpt56Sol;       // GPT-5.6 Sol - complex reasoning and coding
+let terra = Gpt5Model::Gpt56Terra;   // GPT-5.6 Terra - balanced intelligence and cost
+let luna = Gpt5Model::Gpt56Luna;     // GPT-5.6 Luna - cost-sensitive high-volume workloads
+let gpt55 = Gpt5Model::Gpt55;        // GPT-5.5 model
+let model = Gpt5Model::Gpt54;        // GPT-5.4 model
+let mini = Gpt5Model::Gpt54Mini;     // GPT-5.4 mini model
+let nano = Gpt5Model::Gpt54Nano;     // GPT-5.4 nano model
+let legacy = Gpt5Model::Gpt5;        // Original GPT-5 model - retained for compatibility
+let custom = Gpt5Model::Custom("gpt-5-future".to_string()); // Future or account-specific IDs
 ```
 
 ### Reasoning Effort
@@ -222,9 +228,13 @@ Control how much computational effort GPT-5 puts into reasoning:
 ```rust
 use gpt5::ReasoningEffort;
 
+let none = ReasoningEffort::None;   // Disable reasoning where supported
+let minimal = ReasoningEffort::Minimal; // Fastest GPT-5 reasoning mode where supported
 let low = ReasoningEffort::Low;     // Fast, basic reasoning
 let medium = ReasoningEffort::Medium; // Balanced performance
 let high = ReasoningEffort::High;   // Thorough analysis
+let xhigh = ReasoningEffort::XHigh; // Extra-high reasoning where supported
+let max = ReasoningEffort::Max;     // Maximum reasoning for demanding tasks where supported
 ```
 
 ### Verbosity Levels

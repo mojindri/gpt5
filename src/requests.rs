@@ -67,6 +67,9 @@ pub struct Gpt5Request {
 pub struct RequestReasoning {
     /// Effort level hint that balances speed, cost, and reasoning depth
     pub effort: ReasoningEffort,
+    /// Optional summary controls for reasoning-capable models.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub summary: Option<String>,
 }
 
 /// Text configuration for requests
@@ -355,7 +358,23 @@ impl Gpt5RequestBuilder {
     ///     .build();
     /// ```
     pub fn reasoning_effort(mut self, effort: ReasoningEffort) -> Self {
-        self.reasoning = Some(RequestReasoning { effort });
+        self.reasoning = Some(RequestReasoning {
+            effort,
+            summary: None,
+        });
+        self
+    }
+
+    /// Set reasoning summary behaviour.
+    pub fn reasoning_summary(mut self, summary: &str) -> Self {
+        if let Some(reasoning) = &mut self.reasoning {
+            reasoning.summary = Some(summary.to_string());
+        } else {
+            self.reasoning = Some(RequestReasoning {
+                effort: ReasoningEffort::Medium,
+                summary: Some(summary.to_string()),
+            });
+        }
         self
     }
 
