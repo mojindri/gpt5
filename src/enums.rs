@@ -16,7 +16,11 @@
 /// ```
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ReasoningEffort {
-    /// Low reasoning effort - fastest responses
+    /// Disable reasoning effort where supported
+    None,
+    /// Minimal reasoning effort for fastest GPT-5 responses where supported
+    Minimal,
+    /// Low reasoning effort - fastest broadly supported responses
     Low,
     /// Medium reasoning effort - balanced performance
     Medium,
@@ -32,6 +36,8 @@ impl serde::Serialize for ReasoningEffort {
         S: serde::Serializer,
     {
         match self {
+            ReasoningEffort::None => serializer.serialize_str("none"),
+            ReasoningEffort::Minimal => serializer.serialize_str("minimal"),
             ReasoningEffort::Low => serializer.serialize_str("low"),
             ReasoningEffort::Medium => serializer.serialize_str("medium"),
             ReasoningEffort::High => serializer.serialize_str("high"),
@@ -47,6 +53,8 @@ impl<'de> serde::Deserialize<'de> for ReasoningEffort {
     {
         let s = String::deserialize(deserializer)?;
         Ok(match s.as_str() {
+            "none" => ReasoningEffort::None,
+            "minimal" => ReasoningEffort::Minimal,
             "low" => ReasoningEffort::Low,
             "medium" => ReasoningEffort::Medium,
             "high" => ReasoningEffort::High,

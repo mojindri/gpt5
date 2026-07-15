@@ -12,11 +12,17 @@
 /// ```
 #[derive(Debug, Clone)]
 pub enum Gpt5Model {
-    /// Main GPT-5 model - most capable
+    /// Latest GPT-5.4 model - most capable current GPT-5 family default
+    Gpt54,
+    /// GPT-5.4 Mini - balanced performance and cost
+    Gpt54Mini,
+    /// GPT-5.4 Nano - fastest and most cost-effective
+    Gpt54Nano,
+    /// Original GPT-5 model - retained for compatibility
     Gpt5,
-    /// GPT-5 Mini - balanced performance and cost
+    /// Original GPT-5 Mini - retained for compatibility
     Gpt5Mini,
-    /// GPT-5 Nano - fastest and most cost-effective
+    /// Original GPT-5 Nano - retained for compatibility
     Gpt5Nano,
     /// Custom GPT-5 variant for future models
     Custom(String),
@@ -35,6 +41,9 @@ impl Gpt5Model {
     /// ```
     pub fn as_str(&self) -> &str {
         match self {
+            Gpt5Model::Gpt54 => "gpt-5.4",
+            Gpt5Model::Gpt54Mini => "gpt-5.4-mini",
+            Gpt5Model::Gpt54Nano => "gpt-5.4-nano",
             Gpt5Model::Gpt5 => "gpt-5",
             Gpt5Model::Gpt5Mini => "gpt-5-mini",
             Gpt5Model::Gpt5Nano => "gpt-5-nano",

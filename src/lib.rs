@@ -80,6 +80,9 @@ mod tests {
 
     #[test]
     fn test_gpt5_model_as_str() {
+        assert_eq!(Gpt5Model::Gpt54.as_str(), "gpt-5.4");
+        assert_eq!(Gpt5Model::Gpt54Mini.as_str(), "gpt-5.4-mini");
+        assert_eq!(Gpt5Model::Gpt54Nano.as_str(), "gpt-5.4-nano");
         assert_eq!(Gpt5Model::Gpt5.as_str(), "gpt-5");
         assert_eq!(Gpt5Model::Gpt5Mini.as_str(), "gpt-5-mini");
         assert_eq!(Gpt5Model::Gpt5Nano.as_str(), "gpt-5-nano");

@@ -209,9 +209,10 @@ The library supports all GPT-5 models:
 ```rust
 use gpt5::Gpt5Model;
 
-let model = Gpt5Model::Gpt5;        // Main model - most capable
-let mini = Gpt5Model::Gpt5Mini;     // Balanced performance and cost
-let nano = Gpt5Model::Gpt5Nano;     // Fastest and most cost-effective
+let model = Gpt5Model::Gpt54;       // Latest GPT-5.4 model - most capable
+let mini = Gpt5Model::Gpt54Mini;    // Latest mini model - balanced performance and cost
+let nano = Gpt5Model::Gpt54Nano;    // Latest nano model - fastest and most cost-effective
+let legacy = Gpt5Model::Gpt5;       // Original GPT-5 model - retained for compatibility
 let custom = Gpt5Model::Custom("gpt-5-custom".to_string());
 ```
 
@@ -222,6 +223,8 @@ Control how much computational effort GPT-5 puts into reasoning:
 ```rust
 use gpt5::ReasoningEffort;
 
+let none = ReasoningEffort::None;   // Disable reasoning where supported
+let minimal = ReasoningEffort::Minimal; // Fastest GPT-5 reasoning mode where supported
 let low = ReasoningEffort::Low;     // Fast, basic reasoning
 let medium = ReasoningEffort::Medium; // Balanced performance
 let high = ReasoningEffort::High;   // Thorough analysis
